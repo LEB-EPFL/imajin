@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "leb.imajin"
+version = "0.0.0"
+description = "Tools to simulate optics and microscopy experiments."
+authors = ["Kyle M. Douglass <kyle.douglass@epfl.ch>"]
+
+[tool.poetry.dependencies]
+numpy = "*"
+python = ">=3.9"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1"

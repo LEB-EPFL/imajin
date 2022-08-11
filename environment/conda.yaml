@@ -1,0 +1,9 @@
+name: imagjin
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - conda-lock
+  - poetry=1.1.14
+  - python=3.10
+  
