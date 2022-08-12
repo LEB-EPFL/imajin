@@ -1,3 +1,3 @@
-from .experiment.experiment import Experiment
-from .instrument.instrument import Instrument
-from .sample.sample import Sample
+from .experiments.experiment import Experiment
+from .instruments.instrument import Instrument
+from .samples.sample import Sample
