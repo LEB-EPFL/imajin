@@ -1,7 +1,0 @@
-name: leb.imajin
-channels:
-  - conda-forge
-  - defaults
-dependencies:
-  - poetry=1.1
-  - python=3.10
