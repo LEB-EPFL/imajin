@@ -18,6 +18,7 @@ python = ">=3.9"
 [tool.poetry.dev-dependencies]
 black = "*"
 isort = "*"
+mypy = "*"
 pytest = "^7.1"
 tox = "^3"
 
@@ -27,14 +28,13 @@ testpaths = [
     "tests",
 ]
 
-[tool.isort]
-profile = "black"
-
 [tool.tox]
 legacy_tox_ini = """
 [tox]
 envlist = 
-    lint
+    black
+    isort
+    mypy
     py39
     py310
 isolated_build = True
@@ -54,12 +54,21 @@ commands =
     black .
     isort --apply
 
-[testenv:lint]
+[testenv:{black, isort, mypy}]
 allowlist_externals =
     black
     isort
+    mypy
 skip_install = True
 commands =
-    black --check --diff .
-    isort --check-only --diff
+    black: black --check --diff .
+    isort: isort --check-only --diff
+    mypy: mypy .
 """
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true

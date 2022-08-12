@@ -18,12 +18,6 @@ Tools to simulate optics and microscopy experiments.
 poetry run tox
 ```
 
-Run only the linters.
-
-```console
-poetry run tox -e lint
-```
-
 ### Format the code
 
 ```console
