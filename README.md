@@ -15,7 +15,7 @@ poetry install
 ### Run the tests
 
 ```console
-pytest
+tox
 ```
 
 ### Lock dependencies

@@ -1,7 +1,8 @@
-from leb.imajin.models.detectors.cmos_camera import CMOSCamera
+from leb.imajin.instrument import CMOSCamera
+
 
 def test_CMOSCamera():
-    num_pixels = (128, 128) 
+    num_pixels = (128, 128)
     
     camera = CMOSCamera(num_pixels)
 

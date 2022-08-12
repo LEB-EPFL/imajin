@@ -1,8 +1,15 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "leb.imajin"
 version = "0.0.0"
 description = "Tools to simulate optics and microscopy experiments."
 authors = ["Kyle M. Douglass <kyle.douglass@epfl.ch>"]
+packages = [
+    { include = "leb", from = "src" }
+]
 
 [tool.poetry.dependencies]
 numpy = "*"
@@ -10,3 +17,23 @@ python = ">=3.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1"
+tox = "^3"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py39,py310
+isolated_build = True
+
+[testenv]
+allowlist_externals = poetry
+commands =
+    poetry install -v
+    poetry run pytest
+"""
