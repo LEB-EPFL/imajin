@@ -44,7 +44,7 @@ class CMOSCamera:
     def snapshot(
         self,
         photons: npt.NDArray[np.unsignedinteger],
-        rs: Optional[RandomState]= None,
+        rs: Optional[RandomState] = None,
     ) -> npt.NDArray[np.unsignedinteger]:
         if rs is None:
             rs = RandomState()
@@ -53,12 +53,16 @@ class CMOSCamera:
         photoelectrons = rs.poisson(self.qe * photons, size=photons.shape)
 
         # Add dark noise
-        electrons = rs.normal(scale=self.dark_noise, size=photoelectrons.shape) + photoelectrons
+        electrons = (
+            rs.normal(scale=self.dark_noise, size=photoelectrons.shape) + photoelectrons
+        )
 
         # Convert to ADU and add baseline
         bits, data_type = self.bit_depth.value
         max_adu = data_type(2**bits - 1)
-        adu = (electrons * self.sensitivity).astype(data_type) # Convert to discrete numbers
+        adu = (electrons * self.sensitivity).astype(
+            data_type
+        )  # Convert to discrete numbers
         adu += self.baseline
         adu[adu > max_adu] = max_adu  # models pixel saturation
 

@@ -16,6 +16,8 @@ numpy = "*"
 python = ">=3.9"
 
 [tool.poetry.dev-dependencies]
+black = "*"
+isort = "*"
 pytest = "^7.1"
 tox = "^3"
 
@@ -25,10 +27,16 @@ testpaths = [
     "tests",
 ]
 
+[tool.isort]
+profile = "black"
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py39,py310
+envlist = 
+    lint
+    py39
+    py310
 isolated_build = True
 
 [testenv]
@@ -36,4 +44,22 @@ allowlist_externals = poetry
 commands =
     poetry install -v
     poetry run pytest
+
+[testenv:format]
+allowlist_externals = 
+    black
+    isort
+skip_install = True
+commands =
+    black .
+    isort --apply
+
+[testenv:lint]
+allowlist_externals =
+    black
+    isort
+skip_install = True
+commands =
+    black --check --diff .
+    isort --check-only --diff
 """

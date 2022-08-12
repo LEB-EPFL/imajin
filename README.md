@@ -12,10 +12,22 @@ Tools to simulate optics and microscopy experiments.
 4. Activate the virtual environment: `poetry shell`
 5. Install the dependencies: `poetry install`
 
-### Run the tests
+### Run the tests and linters
 
 ```console
 poetry run tox
+```
+
+Run only the linters.
+
+```console
+poetry run tox -e lint
+```
+
+### Format the code
+
+```console
+poetry run tox -e format
 ```
 
 ### Lock dependencies
