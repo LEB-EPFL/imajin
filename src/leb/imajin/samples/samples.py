@@ -1,4 +1,4 @@
-from .sample import Sample
+from ._sample import Sample
 
 
 class NullSample(Sample):
