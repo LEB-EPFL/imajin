@@ -1,2 +1,1 @@
-from .detectors import *
-from .instruments import *
+from ._instruments import *
