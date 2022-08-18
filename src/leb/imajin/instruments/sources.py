@@ -19,6 +19,9 @@ class UniformMono2D:
         self.x_lim = x_lim
         self.y_lim = y_lim
 
+    def __repr__(self) -> str:
+        return f"UniformMono2D(power_max={self._power_max}, power={self.power}, x_lim={self.x_lim}, y_lim={self.y_lim})"
+
     @property
     def POWER_MAX(self) -> float:
         return self._power_max
