@@ -32,7 +32,12 @@ class SimpleCMOSCamera:
         self.sensitivity = sensitivity
 
     def __repr__(self) -> str:
-        return f"SimpleCMOSCamera(baseline={self.baseline}, bit_depth={self.bit_depth}, dark_noise={self.dark_noise}, qe={self.qe}, sensitivity={self.sensitivity})"
+        return (
+            f"SimpleCMOSCamera(baseline={self.baseline}, "
+            f"bit_depth={self.bit_depth}, dark_noise={self.dark_noise}, "
+            f"num_pixels={self.num_pixels}, qe={self.qe}, "
+            f"sensitivity={self.sensitivity})"
+        )
 
     @property
     def baseline(self) -> int:
