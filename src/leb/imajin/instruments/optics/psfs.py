@@ -44,7 +44,6 @@ class Gaussian2D(PSF):
     def bin(
         self, x: npt.ArrayLike, y: npt.ArrayLike, x0: float = 0.0, y0: float = 0.0
     ) -> np.ndarray:
-        # TODO: Parametrize this into a configurable float type
         x0_, y0_ = DEFAULT_FLOAT_TYPE(x0), DEFAULT_FLOAT_TYPE(y0)
         x, y = np.asanyarray(x), np.asanyarray(y)
         scale = np.sqrt(2) * self.fwhm / 2.3548
@@ -64,7 +63,6 @@ class Gaussian2D(PSF):
     def sample(
         self, x: npt.ArrayLike, y: npt.ArrayLike, x0: float = 0, y0: float = 0.0
     ) -> np.ndarray:
-        # TODO: Parametrize this into a configurable float type
         x0_, y0_ = DEFAULT_FLOAT_TYPE(x0), DEFAULT_FLOAT_TYPE(y0)
         x, y = np.asanyarray(x), np.asanyarray(y)
         sigma = self.fwhm / 2.3548
