@@ -13,6 +13,7 @@ packages = [
 
 [tool.poetry.dependencies]
 numpy = "*"
+scipy = "*"
 python = ">=3.9"
 
 [tool.poetry.dev-dependencies]
@@ -72,3 +73,5 @@ profile = "black"
 [tool.mypy]
 warn_return_any = true
 warn_unused_configs = true
+
+plugins = "numpy.typing.mypy_plugin"
