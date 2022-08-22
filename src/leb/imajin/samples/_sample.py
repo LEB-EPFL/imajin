@@ -1,5 +1,9 @@
-from typing import Protocol
+from typing import Optional, Protocol
+
+from leb.imajin import Response
+from leb.imajin.instruments import Source
 
 
 class Sample(Protocol):
-    pass
+    def response(self, source: Source, dt: float) -> Optional[Response]:
+        pass
