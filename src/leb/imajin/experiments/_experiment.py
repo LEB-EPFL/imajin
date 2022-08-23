@@ -1,5 +1,5 @@
-from leb.imajin.instruments._instrument import Instrument
-from leb.imajin.samples._sample import Sample
+from leb.imajin.instruments import Instrument
+from leb.imajin.samples import Sample
 
 
 class Experiment:

@@ -29,3 +29,7 @@ poetry run tox -e format
 ```console
 poetry lock
 ```
+
+### Design Guidelines
+
+- Functions/methods that expect sequence-like types (e.g. lists, tuples, etc.) as inputs should accept NumPy [ArrayLike](https://numpy.org/devdocs/reference/typing.html#numpy.typing.ArrayLike) types because these can be either NumPy arrays or native Python sequences.

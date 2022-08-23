@@ -1,4 +1,4 @@
-from leb.imajin import Experiment
+from leb.imajin.experiments import Experiment
 from leb.imajin.instruments import NullInstrument
 from leb.imajin.samples import NullSample
 
