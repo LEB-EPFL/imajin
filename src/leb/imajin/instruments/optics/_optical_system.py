@@ -1,16 +1,18 @@
-from typing import Protocol, Tuple
+from typing import Generic, Protocol, Tuple, TypeVar
 
 import numpy as np
 import numpy.typing as npt
 
 from leb.imajin.samples import SampleResponse
 
+T = TypeVar("T", bound=npt.NBitBase)
 
-class PSF(Protocol):
+
+class PSF(Protocol, Generic[T]):
     """The point spread function is a response of an optical system to a single point source."""
 
     def bin(
-        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: float = 0.0, y0: float = 0.0
+        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
     ) -> np.ndarray:
         """Returns the proportion of a normalized PSF centered at (x0, y0) that intersects a square pixel at (x, y).
 
@@ -19,7 +21,7 @@ class PSF(Protocol):
         """
 
     def sample(
-        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: float = 0, y0: float = 0.0
+        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
     ) -> np.ndarray:
         """Returns samples of the normalized PSF centered at (x0, y0) from the points in x and y."""
 

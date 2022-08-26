@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Generic, Protocol, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -8,8 +8,10 @@ from leb.imajin import DEFAULT_FLOAT_TYPE
 
 from ._optical_system import PSF
 
+T = TypeVar("T", bound=npt.NBitBase)
 
-class Gaussian2D(PSF):
+
+class Gaussian2D(PSF, Generic[T]):
     def __init__(self, fwhm: float = 1):
         self.fwhm = fwhm
 
@@ -28,28 +30,26 @@ class Gaussian2D(PSF):
         self._fwhm = value
 
     def bin(
-        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: float = 0.0, y0: float = 0.0
+        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
     ) -> np.ndarray:
-        x0_, y0_ = DEFAULT_FLOAT_TYPE(x0), DEFAULT_FLOAT_TYPE(y0)
         x, y = np.asanyarray(x), np.asanyarray(y)
         scale = np.sqrt(2) * self.fwhm / 2.3548
         binned_values: np.ndarray = (
             0.25
             * (
-                special.erf((x - x0_ + 0.5) / scale)
-                - special.erf((x + x0_ - 0.5) / scale)
+                special.erf((x - x0 + 0.5) / scale)
+                - special.erf((x + x0 - 0.5) / scale)
             )
             * (
-                special.erf((y - y0_ + 0.5) / scale)
-                - special.erf((y + y0_ - 0.5) / scale)
+                special.erf((y - y0 + 0.5) / scale)
+                - special.erf((y + y0 - 0.5) / scale)
             )
         )
         return binned_values
 
     def sample(
-        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: float = 0, y0: float = 0.0
+        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
     ) -> np.ndarray:
-        x0_, y0_ = DEFAULT_FLOAT_TYPE(x0), DEFAULT_FLOAT_TYPE(y0)
         x, y = np.asanyarray(x), np.asanyarray(y)
         sigma = self.fwhm / 2.3548
         samples: np.ndarray = (
@@ -57,8 +57,8 @@ class Gaussian2D(PSF):
             / (2.0 * np.pi * sigma * sigma)
             * np.exp(
                 -(
-                    (x - x0_) ** 2.0 / (2.0 * sigma**2.0)
-                    + (y - y0_) ** 2.0 / (2.0 * sigma**2.0)
+                    (x - x0) ** 2.0 / (2.0 * sigma**2.0)
+                    + (y - y0) ** 2.0 / (2.0 * sigma**2.0)
                 )
             )
         )
