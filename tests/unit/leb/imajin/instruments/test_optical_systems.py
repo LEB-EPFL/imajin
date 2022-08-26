@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from scipy import special  # type: ignore
 
-from leb.imajin.instruments.optics.psfs import Gaussian2D
+from leb.imajin.instruments.optics import Gaussian2D
 
 
 def gauss2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
