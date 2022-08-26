@@ -38,11 +38,11 @@ class Gaussian2D(PSF, Generic[T]):
             0.25
             * (
                 special.erf((x - x0 + 0.5) / scale)
-                - special.erf((x + x0 - 0.5) / scale)
+                - special.erf((x - x0 - 0.5) / scale)
             )
             * (
                 special.erf((y - y0 + 0.5) / scale)
-                - special.erf((y + y0 - 0.5) / scale)
+                - special.erf((y - y0 - 0.5) / scale)
             )
         )
         return binned_values

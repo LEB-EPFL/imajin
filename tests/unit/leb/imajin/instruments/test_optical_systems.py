@@ -30,11 +30,11 @@ def erf2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
         0.25
         * (
             special.erf((x - x0 + 0.5) / sx / sqrt2)
-            - special.erf((x + x0 - 0.5) / sx / sqrt2)
+            - special.erf((x - x0 - 0.5) / sx / sqrt2)
         )
         * (
             special.erf((y - y0 + 0.5) / sy / sqrt2)
-            - special.erf((y + y0 - 0.5) / sy / sqrt2)
+            - special.erf((y - y0 - 0.5) / sy / sqrt2)
         )
     )
 
@@ -75,7 +75,10 @@ class TestGaussian2D:
 class TestSimpleMicroscope:
     @pytest.fixture
     def sample_response(self):
-        return [EmitterResponse(4.0, 4.0, 4.0, 100, 0.7e-6)]
+        return [
+            EmitterResponse(4.0, 4.0, 0.0, 100, 0.7e-6),
+            EmitterResponse(5.0, 7.0, 0.0, 1000, 0.7e-6),
+        ]
 
     def test_response(self, sample_response):
         x_lim = (0, 32)  # Units are pixels
@@ -86,8 +89,9 @@ class TestSimpleMicroscope:
         photons = microscope.response(x_lim, y_lim, sample_response)
 
         assert photons.shape == (y_lim[1], x_lim[1])
-        assert np.any(photons[photons > 0])
-        assert np.sum(photons) == sample_response[0].photons
+
+        # The sum of all photons should be equal to the photons emitted by all fluorophores.
+        assert np.sum(photons) == sum(r.photons for r in sample_response)
 
     @pytest.mark.parametrize(
         "spatial_limits",
