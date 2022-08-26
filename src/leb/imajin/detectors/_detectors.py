@@ -5,6 +5,8 @@ import numpy as np
 import numpy.typing as npt
 from numpy.random import RandomState
 
+from leb.imajin import Detector, DetectorResponse, OpticsResponse
+
 
 class BitDepth(Enum):
     EIGHT = (8, np.uint8)
@@ -14,7 +16,7 @@ class BitDepth(Enum):
     THIRTYTWO = (32, np.uint32)
 
 
-class SimpleCMOSCamera:
+class SimpleCMOSCamera(Detector):
     def __init__(
         self,
         baseline: int = 100,
@@ -94,12 +96,9 @@ class SimpleCMOSCamera:
 
         self._sensitivity = value
 
-    def get_image(
-        self,
-        photons: Optional[npt.NDArray[np.integer]] = None,
-        rs: Optional[RandomState] = None,
-    ) -> npt.NDArray[np.unsignedinteger]:
-        if rs is None:
+    def response(self, photons: OpticsResponse, **kwargs) -> DetectorResponse:
+        """Computes the response of the detector to an optical system."""
+        if (rs := kwargs.get("random_state")) is None:
             rs = RandomState()
 
         if photons is None:

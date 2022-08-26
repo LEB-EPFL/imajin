@@ -4,11 +4,7 @@ from typing import Generic, List, TypeVar
 import numpy as np
 import numpy.typing as npt
 
-from leb.imajin.instruments import Source
-
-from ._sample import EmitterResponse, Sample
-
-SampleResponse = List[EmitterResponse]
+from leb.imajin import EmitterResponse, Sample, SampleResponse, Source
 
 
 class NullSample(Sample):

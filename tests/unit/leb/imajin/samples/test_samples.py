@@ -3,7 +3,7 @@ from unittest.mock import create_autospec
 
 import pytest
 
-from leb.imajin.instruments import Source
+from leb.imajin import Source
 from leb.imajin.samples import *
 
 

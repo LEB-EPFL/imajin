@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from leb.imajin import Constants as c
-from leb.imajin.instruments.sources import UniformMono2D
+from leb.imajin.sources import UniformMono2D
 
 
 def test_UniformMono2D_e_field():

@@ -3,7 +3,7 @@ from unittest.mock import create_autospec
 import numpy as np
 import pytest
 
-from leb.imajin.instruments.detectors import BitDepth, SimpleCMOSCamera
+from leb.imajin.detectors import BitDepth, SimpleCMOSCamera
 
 
 @pytest.fixture
@@ -12,7 +12,7 @@ def rs_stub():
     return create_autospec(np.random.RandomState, spec_set=True)
 
 
-def test_SimpleCMOSCamera_get_image_correct_value(rs_stub):
+def test_SimpleCMOSCamera_response_correct_value(rs_stub):
     bit_depth = BitDepth.TWELVE
     sensitivity = 2
     photons_avg = 100
@@ -22,14 +22,14 @@ def test_SimpleCMOSCamera_get_image_correct_value(rs_stub):
     rs_stub.poisson.return_value = (photons_avg + 10) * np.ones(camera.num_pixels)
     rs_stub.normal.return_value = 10
 
-    img = camera.get_image(photons=photons, rs=rs_stub)
+    img = camera.response(photons=photons, random_state=rs_stub)
 
     # Pre-calculated result is 340 ADUs in each pixel
     assert np.all(340 == img)
     assert np.uint16 == img.dtype
 
 
-def test_SimpleCMOSCamera_get_image_saturation(rs_stub):
+def test_SimpleCMOSCamera_response_saturation(rs_stub):
     photons_avg = 1e10
     bit_depth = BitDepth.EIGHT
     camera = SimpleCMOSCamera(bit_depth=bit_depth)
@@ -40,49 +40,49 @@ def test_SimpleCMOSCamera_get_image_saturation(rs_stub):
     )
     rs_stub.normal.return_value = 10 * np.ones(camera.num_pixels)
 
-    img = camera.get_image(photons=photons, rs=rs_stub)
+    img = camera.response(photons=photons, random_state=rs_stub)
 
     # All pixels saturated at the maximum value for an 8-bit sensor
     assert np.all(255 == img)
 
 
-def test_SimpleCMOSCamera_get_image_output_size_is_correct_with_signal():
+def test_SimpleCMOSCamera_response_output_size_is_correct_with_signal():
     num_pixels = (128, 128)
 
     camera = SimpleCMOSCamera(num_pixels=num_pixels)
     photons = 1000 * np.ones(num_pixels)
 
-    img = camera.get_image(photons)
+    img = camera.response(photons)
 
     assert img.shape == num_pixels
 
 
-def test_SimpleCMOSCamera_get_image_output_size_is_correct_without_signal():
+def test_SimpleCMOSCamera_response_output_size_is_correct_without_signal():
     num_pixels = (128, 128)
 
     camera = SimpleCMOSCamera(num_pixels=num_pixels)
     photons = None
 
-    img = camera.get_image(photons=photons)
+    img = camera.response(photons=photons)
 
     assert img.shape == num_pixels
 
 
-def test_SimpleCMOSCamera_get_image_negative_photons():
+def test_SimpleCMOSCamera_response_negative_photons():
     photons = np.array([[-100, 150], [100, -100]])
     camera = SimpleCMOSCamera()
 
     with pytest.raises(ValueError):
-        camera.get_image(photons)
+        camera.response(photons)
 
 
-def test_SimpleCMOSCamera_get_image_photons_wrong_shape():
+def test_SimpleCMOSCamera_response_photons_wrong_shape():
     photons = np.ones((32, 32))
     num_pixels = (64, 64)
     camera = SimpleCMOSCamera(num_pixels=num_pixels)
 
     with pytest.raises(ValueError):
-        camera.get_image(photons)
+        camera.response(photons)
 
 
 @pytest.mark.parametrize(

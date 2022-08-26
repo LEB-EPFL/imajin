@@ -4,9 +4,7 @@ from typing import Tuple
 import numpy as np
 import numpy.typing as npt
 
-from leb.imajin.samples import SampleResponse
-
-from ._optical_system import PSF, OpticalSystem
+from leb.imajin import PSF, Optics, SampleResponse
 
 
 def safe_round(array: npt.ArrayLike, total: int) -> np.ndarray:
@@ -35,7 +33,7 @@ def safe_round(array: npt.ArrayLike, total: int) -> np.ndarray:
 
 
 @dataclass
-class SimpleMicroscope(OpticalSystem):
+class SimpleMicroscope(Optics):
     psf: PSF
 
     def response(

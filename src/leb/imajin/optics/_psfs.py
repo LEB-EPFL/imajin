@@ -4,9 +4,7 @@ import numpy as np
 import numpy.typing as npt
 from scipy import special  # type: ignore
 
-from leb.imajin import DEFAULT_FLOAT_TYPE
-
-from ._optical_system import PSF
+from leb.imajin import PSF
 
 T = TypeVar("T", bound=npt.NBitBase)
 

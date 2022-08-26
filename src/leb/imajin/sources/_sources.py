@@ -4,9 +4,10 @@ import numpy as np
 import numpy.typing as npt
 
 from leb.imajin import Constants as c
+from leb.imajin import Source
 
 
-class UniformMono2D:
+class UniformMono2D(Source):
     def __init__(
         self,
         power_max: float,
