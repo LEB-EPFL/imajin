@@ -27,6 +27,7 @@ def safe_round(array: npt.ArrayLike, total: int) -> np.ndarray:
     # np.argsort() returns an array of indices that would sort an array
     sorted_index_array = np.argsort(array - rounded_array, axis=None)
 
+    # Add +/- 1 to the elements of the rounded_array with the n largest rounding errors
     safe_rounded_array = rounded_array.flatten()
     safe_rounded_array[sorted_index_array[0:n]] += np.copysign(1, error)
 
