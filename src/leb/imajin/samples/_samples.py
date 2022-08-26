@@ -8,6 +8,8 @@ from leb.imajin.instruments import Source
 
 from ._sample import EmitterResponse, Sample
 
+SampleResponse = List[EmitterResponse]
+
 
 class NullSample(Sample):
     def response(self, source: Source, dt: float) -> None:
@@ -53,7 +55,7 @@ class ConstantEmitters(Sample):
 
         self._wavelength = value
 
-    def response(self, source: Source, dt: float) -> List[EmitterResponse]:
+    def response(self, source: Source, dt: float) -> SampleResponse:
         """Returns the response of the emitters to the radiation source.
 
         ConstantEmitters emit a constant number of photons per unit time interval, regardless of

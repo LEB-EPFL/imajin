@@ -1,7 +1,9 @@
-from typing import Protocol
+from typing import Protocol, Tuple
 
 import numpy as np
 import numpy.typing as npt
+
+from leb.imajin.samples import SampleResponse
 
 
 class PSF(Protocol):
@@ -26,3 +28,11 @@ class OpticalSystem(Protocol):
     """Models an optical system such as a microscope."""
 
     psf: PSF
+
+    def response(
+        self,
+        x_lim: Tuple[int, int],
+        y_lim: Tuple[int, int],
+        sample_response: SampleResponse,
+    ) -> np.ndarray:
+        """Computes the response of the optical system to a collection of emitters."""
