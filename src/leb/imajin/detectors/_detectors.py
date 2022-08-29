@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 import numpy.typing as npt
-from numpy.random import RandomState
+from numpy import random
 
 from leb.imajin import Detector, DetectorResponse, OpticsResponse
 
@@ -98,8 +98,8 @@ class SimpleCMOSCamera(Detector):
 
     def response(self, photons: OpticsResponse, **kwargs) -> DetectorResponse:
         """Computes the response of the detector to an optical system."""
-        if (rs := kwargs.get("random_state")) is None:
-            rs = RandomState()
+        if (rng := kwargs.get("rng")) is None:
+            rng = random.default_rng()
 
         if photons is None:
             # No signal
@@ -111,11 +111,12 @@ class SimpleCMOSCamera(Detector):
         else:
             # Add shot noise and convert to electrons
             # Ignore typing so numpy can handle intermediate data types without mypy errors
-            photoelectrons = rs.poisson(self.qe * photons, size=photons.shape)  # type: ignore
+            photoelectrons = rng.poisson(self.qe * photons, size=photons.shape)  # type: ignore
 
         # Add dark noise
         electrons = (
-            rs.normal(scale=self.dark_noise, size=photoelectrons.shape) + photoelectrons
+            rng.normal(scale=self.dark_noise, size=photoelectrons.shape)
+            + photoelectrons
         )
 
         # Convert to ADU and add baseline

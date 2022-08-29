@@ -9,7 +9,7 @@ from leb.imajin.detectors import BitDepth, SimpleCMOSCamera
 @pytest.fixture
 def rs_stub():
     """Returns a stub of a random number generator for deterministic testing."""
-    return create_autospec(np.random.RandomState, spec_set=True)
+    return create_autospec(np.random.Generator, spec_set=True)
 
 
 def test_SimpleCMOSCamera_response_correct_value(rs_stub):
@@ -22,7 +22,7 @@ def test_SimpleCMOSCamera_response_correct_value(rs_stub):
     rs_stub.poisson.return_value = (photons_avg + 10) * np.ones(camera.num_pixels)
     rs_stub.normal.return_value = 10
 
-    img = camera.response(photons=photons, random_state=rs_stub)
+    img = camera.response(photons=photons, rng=rs_stub)
 
     # Pre-calculated result is 340 ADUs in each pixel
     assert np.all(340 == img)
@@ -40,7 +40,7 @@ def test_SimpleCMOSCamera_response_saturation(rs_stub):
     )
     rs_stub.normal.return_value = 10 * np.ones(camera.num_pixels)
 
-    img = camera.response(photons=photons, random_state=rs_stub)
+    img = camera.response(photons=photons, rng=rs_stub)
 
     # All pixels saturated at the maximum value for an 8-bit sensor
     assert np.all(255 == img)
