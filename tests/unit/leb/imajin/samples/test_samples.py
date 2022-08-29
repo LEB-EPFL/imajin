@@ -39,7 +39,7 @@ class TestConstantEmitters:
         dt = 0.1
         emitters = ConstantEmitters(**emitter_data)
 
-        response = emitters.response(source, dt)
+        response = emitters.response(dt, source)
 
         assert len(emitter_data["x"]) == len(response)
         # Check the number of emitted photons is correct for this time interval.

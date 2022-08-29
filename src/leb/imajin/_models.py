@@ -38,7 +38,7 @@ SampleResponse = List[EmitterResponse]
 
 
 class Sample(Protocol):
-    def response(self, source: Source, dt: float) -> Optional[SampleResponse]:
+    def response(self, dt: float, source: Source) -> SampleResponse:
         pass
 
 
@@ -85,3 +85,7 @@ class Detector(Protocol):
 
     def response(self, photons: OpticsResponse, **kwargs) -> DetectorResponse:
         """Computes the response of the detector to an optical system."""
+
+    @property
+    def num_pixels(self) -> Tuple[int, int]:
+        """The number of pixels belonging to the detector."""

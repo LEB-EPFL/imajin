@@ -14,11 +14,11 @@ packages = [
 [tool.poetry.dependencies]
 numpy = "*"
 scipy = "*"
-python = ">=3.9"
+python = ">=3.9,<4.0"
 
 [tool.poetry.dev-dependencies]
 black = "*"
-isort = "*"
+isort = ">=5.0"
 mypy = "*"
 pytest = "^7.1"
 tox = "^3"
@@ -53,7 +53,7 @@ allowlist_externals =
 skip_install = True
 commands =
     black .
-    isort --apply
+    isort .
 
 [testenv:{black, isort, mypy}]
 allowlist_externals =
@@ -63,7 +63,7 @@ allowlist_externals =
 skip_install = True
 commands =
     black: black --check --diff .
-    isort: isort --check-only --diff
+    isort: isort --check --diff .
     mypy: mypy .
 """
 
