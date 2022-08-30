@@ -37,7 +37,6 @@ envlist =
     isort
     mypy
     py39
-    py310
 isolated_build = True
 
 [testenv]
