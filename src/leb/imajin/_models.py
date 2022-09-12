@@ -9,8 +9,11 @@ from ._validation import Validation
 T = TypeVar("T", bound=npt.NBitBase)
 
 
-class Source(Protocol):
+class Source(Protocol, Generic[T]):
     """A radiation source for probing samples."""
+
+    def irradiance(self, x: np.floating[T], y: np.floating[T]) -> float:
+        """Computes the irradiance of the source at a point in space."""
 
 
 @dataclass(frozen=True)
@@ -25,20 +28,27 @@ class EmitterResponse(Validation, Generic[T]):
 
     def validate_photons(self, value: int, **_) -> int:
         if value < 0:
-            raise ValueError("photons cannot be less than zero")
+            raise ValueError("photons must be greater than zero")
         return value
 
     def validate_wavelength(self, value: float, **_) -> float:
         if value <= 0:
-            raise ValueError("wavelength must be greater than or equal to zero")
+            raise ValueError("wavelength must be greater than zero")
         return value
+
+
+class Emitter(Protocol):
+    """A single fluorescence emitter."""
+
+    def response(self, time: float, dt: float, source: Source) -> EmitterResponse:
+        pass
 
 
 SampleResponse = List[EmitterResponse]
 
 
 class Sample(Protocol):
-    def response(self, dt: float, source: Source) -> SampleResponse:
+    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
         pass
 
 

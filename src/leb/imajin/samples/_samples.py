@@ -1,14 +1,25 @@
-from dataclasses import dataclass
-from typing import Generic, List, TypeVar
+from dataclasses import InitVar, dataclass, field
+from typing import Generic, List, Sequence, TypeVar
 
 import numpy as np
 import numpy.typing as npt
 
-from leb.imajin import EmitterResponse, Sample, SampleResponse, Source
+from leb.imajin import (
+    Emitter,
+    EmitterResponse,
+    Sample,
+    SampleResponse,
+    Source,
+    Validation,
+)
+
+from ._state_machine import Event, StateMachine
+
+T = TypeVar("T", bound=npt.NBitBase)
 
 
 class NullSample(Sample):
-    def response(self, dt: float, source: Source) -> SampleResponse:
+    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
         """A null sample does not respond to a radiation source."""
         return []
 
@@ -52,7 +63,7 @@ class ConstantEmitters(Sample):
 
         self._wavelength = value
 
-    def response(self, dt: float, source: Source) -> SampleResponse:
+    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
         """Returns the response of the emitters to the radiation source.
 
         ConstantEmitters emit a constant number of photons per unit time interval, regardless of
@@ -64,3 +75,111 @@ class ConstantEmitters(Sample):
             EmitterResponse(x, y, z, photons, self.wavelength)
             for x, y, z in zip(self.x, self.y, self.z)
         ]
+
+
+@dataclass
+class Fluorophore(Emitter, Validation, Generic[T]):
+    """A fluorophore with state transitions between fluorescent and non-fluorescent states.
+
+    The number of photons emitted in the fluorescent state is the average number of photons
+    emitted by an equivalent two-state system in which the transition from the excited to the
+    ground state results in a photon.
+
+    """
+
+    x: np.floating[T]
+    y: np.floating[T]
+    z: np.floating[T]
+    cross_section: float
+    fluorescence_lifetime: float
+    fluorescence_state: int
+    quantum_yield: float
+    state_machine: StateMachine
+    wavelength: float
+
+    def validate_cross_section(self, value: float, **_) -> float:
+        if value <= 0:
+            raise ValueError("cross_section must be greater than zero")
+        return value
+
+    def validate_fluorescence_lifetime(self, value: float, **_) -> float:
+        if value <= 0:
+            raise ValueError("fluorescence_lifetime must be greater than zero")
+        return value
+
+    def validate_fluorescence_state(self, value: int, **_) -> int:
+        if value < 0:
+            raise ValueError("fluorescence_state must be greater than or equal to zero")
+        return value
+
+    def validate_quantum_yield(self, value: float, **_) -> float:
+        if value <= 0 or value > 1:
+            raise ValueError("quantum_yield must be greater than zero and less than 1")
+        return value
+
+    def validate_wavelength(self, value: float, **_) -> float:
+        if value <= 0:
+            raise ValueError("wavelength must be greater than zero")
+        return value
+
+    def compute_on_fraction(
+        self, time: float, dt: float, state_changes: List[Event]
+    ) -> float:
+        """Returns a value between 0 and 1 representing the proportion of time in the ON state."""
+        # No transitions occurred during the interval time + dt
+        if (
+            len(state_changes) == 0
+            and self.fluorescence_state == self.state_machine.current_state
+        ):
+            return 1
+        if (
+            len(state_changes) == 0
+            and self.fluorescence_state != self.state_machine.current_state
+        ):
+            return 0
+
+        # Transitions occurred between energy levels during the interval time + dt
+        # Break the interval time + dt into smaller intervals spent in different states
+        intervals = []
+        last_event_time = time
+        for event in state_changes:
+            intervals.append((event.time - last_event_time, event.from_state))
+            last_event_time = event.time
+        intervals.append((time + dt - last_event_time, event.to_state))
+
+        on_fraction = sum(
+            time for time, state in intervals if state == self.fluorescence_state
+        ) / (time + dt)
+        return on_fraction
+
+    def compute_photon_rate(self, irradiance: float) -> float:
+        """Computes the number of fluorescent photons in response to an irradiance."""
+        saturation_irradiance = (
+            1 / self.cross_section / self.quantum_yield / self.fluorescence_lifetime
+        )
+        photons = (
+            self.quantum_yield
+            * self.cross_section
+            * irradiance
+            / (1 + irradiance / saturation_irradiance)
+        )
+        return photons
+
+    def response(self, time: float, dt: float, source: Source) -> EmitterResponse:
+        irradiance = np.array([source.irradiance(self.x, self.y)])
+        state_changes = self.state_machine.collect(irradiance, time, dt)
+        on_fraction = self.compute_on_fraction(time, dt, state_changes)
+        photons = np.round(on_fraction * self.compute_photon_rate(irradiance[0]))
+
+        return EmitterResponse(self.x, self.y, self.z, photons, self.wavelength)
+
+
+@dataclass
+class Emitters(Sample):
+    emitters: Sequence[Emitter]
+
+    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
+        responses = []
+        for emitter in self.emitters:
+            responses.append(emitter.response(time, dt, source))
+        return responses
