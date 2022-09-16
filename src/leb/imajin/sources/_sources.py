@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Generic, Tuple, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -6,8 +6,10 @@ import numpy.typing as npt
 from leb.imajin import Constants as c
 from leb.imajin import Source
 
+T = TypeVar("T", bound=npt.NBitBase)
 
-class UniformMono2D(Source):
+
+class UniformMono2D(Source, Generic[T]):
     def __init__(
         self,
         power_max: float,
@@ -66,7 +68,9 @@ class UniformMono2D(Source):
 
         self._y_lim = value
 
-    def e_field(self, x: float, y: float, refractive_index: float = 1) -> npt.ArrayLike:
+    def e_field(
+        self, x: np.floating[T], y: np.floating[T], refractive_index: float = 1
+    ) -> npt.ArrayLike:
         if refractive_index < 1:
             raise ValueError("refractive_index must be greater than or equal to 1")
 
@@ -76,11 +80,11 @@ class UniformMono2D(Source):
         )
         return e_field
 
-    def irradiance(self, x: float, y: float) -> float:
+    def irradiance(self, x: np.floating[T], y: np.floating[T]) -> float:
         if x < self.x_lim[0] or x > self.x_lim[1]:
-            return 0
+            return 0.0
         elif y < self.y_lim[0] or y > self.y_lim[1]:
-            return 0
+            return 0.0
         else:
             return (
                 self.power

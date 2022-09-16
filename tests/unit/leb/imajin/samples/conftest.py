@@ -5,6 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import pytest
 
+from leb.imajin.samples import Fluorophore
 from leb.imajin.samples._state_machine import Event, StateMachine
 
 
@@ -30,7 +31,7 @@ def state_machine(rate_constants):
 
 
 @pytest.fixture
-def stopping_state_machine(rate_constants):
+def stopping_state_machine():
     """A 2x2x2x2 state machine that stops once it reaches state 1.
 
     Stopping is encoded as rows that are all zeros in the 2x2 rate matrices.
@@ -52,6 +53,23 @@ def stopping_state_machine(rate_constants):
     # Set the first event because the RNG is a fake
     s._next_event = Event(time=0, from_state=0, to_state=1)
     return s
+
+
+@pytest.fixture
+def fluorophore():
+    """A fluorophore with a dummy state machine."""
+    state_machine = create_autospec(StateMachine)
+    return Fluorophore(
+        x=np.float_(0),
+        y=np.float_(0),
+        z=np.float_(0),
+        cross_section=1e-6,
+        fluorescence_lifetime=1e-6,
+        fluorescence_state=0,
+        quantum_yield=0.8,
+        state_machine=state_machine,
+        wavelength=7,
+    )
 
 
 @dataclass
