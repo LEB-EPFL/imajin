@@ -13,8 +13,8 @@ packages = [
 
 [tool.poetry.dependencies]
 numpy = "*"
-scipy = "*"
-python = ">=3.9,<4.0"
+scipy = ">=1.9"
+python = ">=3.9,<3.12"
 
 [tool.poetry.dev-dependencies]
 black = "*"
@@ -37,6 +37,7 @@ envlist =
     isort
     mypy
     py39
+    py310
 isolated_build = True
 
 [testenv]
