@@ -60,7 +60,8 @@ class PSF(Protocol, Generic[T]):
     ) -> np.ndarray:
         """Returns the proportion of a normalized PSF centered at (x0, y0) that intersects a square pixel at (x, y).
 
-        Units are in pixels. The origin of the coordinate system lies at the center of a pixel.
+        Units are in pixels. The origin of the coordinate system lies at the upper left corner of
+        pixel [0, 0].
 
         """
 

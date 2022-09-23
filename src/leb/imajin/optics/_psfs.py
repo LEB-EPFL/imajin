@@ -31,16 +31,17 @@ class Gaussian2D(PSF, Generic[T]):
         self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
     ) -> np.ndarray:
         x, y = np.asanyarray(x), np.asanyarray(y)
+        grid_size = 1
         scale = np.sqrt(2) * self.fwhm / 2.3548
         binned_values: np.ndarray = (
             0.25
             * (
-                special.erf((x - x0 + 0.5) / scale)
-                - special.erf((x - x0 - 0.5) / scale)
+                special.erf((x - x0 + grid_size) / scale)
+                - special.erf((x - x0) / scale)
             )
             * (
-                special.erf((y - y0 + 0.5) / scale)
-                - special.erf((y - y0 - 0.5) / scale)
+                special.erf((y - y0 + grid_size) / scale)
+                - special.erf((y - y0) / scale)
             )
         )
         return binned_values

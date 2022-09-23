@@ -21,21 +21,15 @@ def gauss2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
 def erf2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
     """Computes the probability of the intersection of a 2D normal distribution and a square area.
 
-    This function models the proportion of a PSF that intersects a square pixel with a center
-    located at (x,y). The PSF is modeled as a 2D normal distribution centered at (x0, y0).
+    This function models the proportion of a PSF that intersects a square pixel with an upper left
+    corner located at (x,y). The PSF is modeled as a 2D normal distribution centered at (x0, y0).
 
     """
     sqrt2 = np.sqrt(2)
     return (
         0.25
-        * (
-            special.erf((x - x0 + 0.5) / sx / sqrt2)
-            - special.erf((x - x0 - 0.5) / sx / sqrt2)
-        )
-        * (
-            special.erf((y - y0 + 0.5) / sy / sqrt2)
-            - special.erf((y - y0 - 0.5) / sy / sqrt2)
-        )
+        * (special.erf((x - x0 + 1) / sx / sqrt2) - special.erf((x - x0) / sx / sqrt2))
+        * (special.erf((y - y0 + 1) / sy / sqrt2) - special.erf((y - y0) / sy / sqrt2))
     )
 
 
