@@ -3,7 +3,6 @@ from typing import Generic, Tuple, TypeVar
 import numpy as np
 import numpy.typing as npt
 
-from leb.imajin import Constants as c
 from leb.imajin import Source
 
 T = TypeVar("T", bound=npt.NBitBase)
@@ -69,13 +68,10 @@ class UniformMono2D(Source, Generic[T]):
         self._y_lim = value
 
     def e_field(
-        self, x: np.floating[T], y: np.floating[T], refractive_index: float = 1
+        self, x: np.floating[T], y: np.floating[T], impedance: float = 1
     ) -> npt.ArrayLike:
-        if refractive_index < 1:
-            raise ValueError("refractive_index must be greater than or equal to 1")
-
         e_field: complex = np.sqrt(
-            c.VACUUM_IMPEDANCE.value * self.irradiance(x, y) / refractive_index,
+            impedance * self.irradiance(x, y),
             dtype=complex,
         )
         return e_field

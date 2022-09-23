@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
 
-from leb.imajin import Constants as c
 from leb.imajin.sources import UniformMono2D
 
 
@@ -9,9 +8,7 @@ def test_UniformMono2D_e_field():
     power = 0.1
     x_lim = -0.001, 0.001
     y_lim = -0.001, 0.001
-    expected_e_field = np.sqrt(
-        power * c.VACUUM_IMPEDANCE.value / (x_lim[1] - x_lim[0]) / (y_lim[1] - y_lim[0])
-    )
+    expected_e_field = np.sqrt(power / (x_lim[1] - x_lim[0]) / (y_lim[1] - y_lim[0]))
     light_source = UniformMono2D(power_max=50, power=power, x_lim=x_lim, y_lim=y_lim)
 
     light_source.e_field(0, 0) == expected_e_field
@@ -19,19 +16,15 @@ def test_UniformMono2D_e_field():
 
 def test_UniformMono2D_e_field_in_dielectric():
     power = 0.1
-    n = 1.33
+    impedance = 376 / 1.33
     x_lim = -0.001, 0.001
     y_lim = -0.001, 0.001
     expected_e_field = np.sqrt(
-        power
-        * c.VACUUM_IMPEDANCE.value
-        / n
-        / (x_lim[1] - x_lim[0])
-        / (y_lim[1] - y_lim[0])
+        power * impedance / (x_lim[1] - x_lim[0]) / (y_lim[1] - y_lim[0])
     )
     light_source = UniformMono2D(power_max=50, power=power, x_lim=x_lim, y_lim=y_lim)
 
-    light_source.e_field(0, 0, refractive_index=n) == expected_e_field
+    light_source.e_field(0, 0, impedance=impedance) == expected_e_field
 
 
 def test_UniformMono2D_irradiance():
