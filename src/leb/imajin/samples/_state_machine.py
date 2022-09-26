@@ -2,7 +2,6 @@ from dataclasses import InitVar, dataclass, field
 from typing import List, Optional
 
 import numpy as np
-import numpy.typing as npt
 
 
 @dataclass
@@ -74,15 +73,14 @@ class StateMachine:
             raise ValueError("the control parameters array must have a dimension of 1")
         if control_params.shape[0] != self.rate_coefficients.shape[0]:
             raise ValueError(
-                "the control parameters array must have the same number of elements as the first dimension of the rate_coefficents array"
+                "the control parameters array must have the same number of elements as the first "
+                "dimension of the rate_coefficents array"
             )
 
         self._control_params = control_params
         self._next_event = self._compute_next_event(control_params, 0)
 
-    def collect(
-        self, control_params: np.ndarray, time: float, dt: float
-    ) -> List[Event]:
+    def collect(self, control_params: np.ndarray, time: float, dt: float) -> List[Event]:
         """Step a state machine and collect its transition events over a time period.
 
         This is the sole public interface to a StateMachine.
@@ -123,12 +121,14 @@ class StateMachine:
             raise ValueError("the control parameters array must have a dimension of 1")
         if control_params.shape[0] != self.rate_coefficients.shape[0]:
             raise ValueError(
-                "the control parameters array must have the same number of elements as the first dimension of the rate_coefficents array"
+                "the control parameters array must have the same number of elements as the first "
+                "dimension of the rate_coefficents array"
             )
 
         # Creates an L x M array where each row is a control parameter and each column is a control
         # parameter value raised to a power equal to the column number starting from 1. For example,
-        # if control_params is np.array([1, 2]) and M = 3, then powers is np.array([[1, 1, 1], [2, 4, 8]]).
+        # if control_params is np.array([1, 2]) and M = 3, then powers is
+        # np.array([[1, 1, 1], [2, 4, 8]]).
         powers = np.power(
             control_params[:, np.newaxis],
             np.arange(1, self.rate_coefficients.shape[1] + 1),
@@ -142,9 +142,7 @@ class StateMachine:
             # All rates are zero, so the state machine can no longer advance.
             self.stopped = True
 
-            return Event(
-                time=np.inf, from_state=self.current_state, to_state=self.current_state
-            )
+            return Event(time=np.inf, from_state=self.current_state, to_state=self.current_state)
 
         # Find all transition rates from the current state
         rates = self._compute_rates(control_params)[self.current_state, :]

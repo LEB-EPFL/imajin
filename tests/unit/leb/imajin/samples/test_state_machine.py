@@ -109,9 +109,7 @@ class TestComputeRates:
 
         result = s._compute_rates(two_control_params_second_order.control_params)
 
-        np.testing.assert_array_equal(
-            two_control_params_second_order.expected_result, result
-        )
+        np.testing.assert_array_equal(two_control_params_second_order.expected_result, result)
 
     @pytest.mark.usefixtures("two_control_params_third_order")
     def test_two_control_params_third_order(self, two_control_params_third_order):
@@ -124,9 +122,7 @@ class TestComputeRates:
 
         result = s._compute_rates(two_control_params_third_order.control_params)
 
-        np.testing.assert_array_equal(
-            two_control_params_third_order.expected_result, result
-        )
+        np.testing.assert_array_equal(two_control_params_third_order.expected_result, result)
 
     @pytest.mark.usefixtures("three_control_params_second_order")
     def test_three_control_params_second_order(self, three_control_params_second_order):
@@ -139,9 +135,7 @@ class TestComputeRates:
 
         result = s._compute_rates(three_control_params_second_order.control_params)
 
-        np.testing.assert_array_equal(
-            three_control_params_second_order.expected_result, result
-        )
+        np.testing.assert_array_equal(three_control_params_second_order.expected_result, result)
 
     @pytest.mark.usefixtures("zero_control_params")
     def test_zero_control_params(self, zero_control_params):

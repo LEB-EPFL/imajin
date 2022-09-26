@@ -134,9 +134,7 @@ class TestFluorophore:
             Event(time=0.9, from_state=0, to_state=2),
         ]
 
-        np.testing.assert_almost_equal(
-            fluorophore.compute_on_fraction(0, 1, events), 0.6
-        )
+        np.testing.assert_almost_equal(fluorophore.compute_on_fraction(0, 1, events), 0.6)
 
     @pytest.mark.usefixtures("fluorophore")
     def test_flourophore_compute_on_fraction_no_events_on_state(self, fluorophore):

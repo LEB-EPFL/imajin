@@ -1,4 +1,4 @@
-from typing import Generic, Protocol, TypeVar
+from typing import Generic, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -35,14 +35,8 @@ class Gaussian2D(PSF, Generic[T]):
         scale = np.sqrt(2) * self.fwhm / 2.3548
         binned_values: np.ndarray = (
             0.25
-            * (
-                special.erf((x - x0 + grid_size) / scale)
-                - special.erf((x - x0) / scale)
-            )
-            * (
-                special.erf((y - y0 + grid_size) / scale)
-                - special.erf((y - y0) / scale)
-            )
+            * (special.erf((x - x0 + grid_size) / scale) - special.erf((x - x0) / scale))
+            * (special.erf((y - y0 + grid_size) / scale) - special.erf((y - y0) / scale))
         )
         return binned_values
 
@@ -55,10 +49,7 @@ class Gaussian2D(PSF, Generic[T]):
             1.0
             / (2.0 * np.pi * sigma * sigma)
             * np.exp(
-                -(
-                    (x - x0) ** 2.0 / (2.0 * sigma**2.0)
-                    + (y - y0) ** 2.0 / (2.0 * sigma**2.0)
-                )
+                -((x - x0) ** 2.0 / (2.0 * sigma**2.0) + (y - y0) ** 2.0 / (2.0 * sigma**2.0))
             )
         )
         return samples

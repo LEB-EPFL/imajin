@@ -71,6 +71,9 @@ commands =
     pylint: pylint src
 """
 
+[tool.black]
+line-length = 100
+
 [tool.isort]
 profile = "black"
 
@@ -82,3 +85,9 @@ plugins = "numpy.typing.mypy_plugin"
 
 [tool.pylint]
 max-line-length = 100
+
+[tool.pylint."messages control"]
+disable = "fixme, missing-docstring, too-few-public-methods, too-many-arguments, too-many-instance-attributes, too-many-locals"
+good-names = ["x", "x0", "x_", "y", "y0", "y_", "z", "z0", "z_", "dt"]
+ignored-classes = "Validation"
+ignored-modules = "scipy.special"

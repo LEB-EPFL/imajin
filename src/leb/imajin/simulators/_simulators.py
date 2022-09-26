@@ -97,7 +97,7 @@ class Simulator(Validation):
     def run(self) -> np.ndarray:
         rows, cols = self.detector.num_pixels
         measurements = np.zeros((self.num_measurements, rows, cols))
-        for n in range(self.num_measurements):
-            measurements[n, :, :] = self.step()
+        for num in range(self.num_measurements):
+            measurements[num, :, :] = self.step()
 
         return measurements
