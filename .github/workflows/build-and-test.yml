@@ -1,0 +1,56 @@
+name: build-and-test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        # 3.10.6 pinned until the following issue is fixed:
+        # https://github.com/python/mypy/issues/13627
+        python-version: ["3.9", "3.10.6"]
+        os: [ubuntu-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Install dependencies
+        run: |
+          poetry install
+      - name: Run linters
+        run: |
+          poetry run tox -e black
+          poetry run tox -e isort
+          poetry run tox -e mypy
+      - name: Run tests
+        shell: bash
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: |
+          if [ "$PYTHON_VERSION" = "3.9" ]
+          then
+            poetry run tox -e py39
+          # 3.10.6 pinned until the following issue is fixed:
+          # https://github.com/python/mypy/issues/13627
+          elif [ "$PYTHON_VERSION" = "3.10.6" ]
+          then
+            poetry run tox -e py310
+          else
+            echo "Python version not recognized"
+            exit 1
+          fi
+
+          

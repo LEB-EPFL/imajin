@@ -1,4 +1,3 @@
-from ossaudiodev import control_labels
 from unittest.mock import create_autospec
 
 import numpy as np
