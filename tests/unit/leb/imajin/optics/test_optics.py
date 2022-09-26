@@ -12,9 +12,7 @@ def gauss2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
     return (
         1.0
         / (2.0 * np.pi * sx * sy)
-        * np.exp(
-            -((x - x0) ** 2.0 / (2.0 * sx**2.0) + (y - y0) ** 2.0 / (2.0 * sy**2.0))
-        )
+        * np.exp(-((x - x0) ** 2.0 / (2.0 * sx**2.0) + (y - y0) ** 2.0 / (2.0 * sy**2.0)))
     )
 
 
@@ -34,9 +32,7 @@ def erf2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
 
 
 class TestGaussian2D:
-    @pytest.mark.parametrize(
-        "psf_centers", [{"x0": np.float64(0), "y0": np.float64(0)}]
-    )
+    @pytest.mark.parametrize("psf_centers", [{"x0": np.float64(0), "y0": np.float64(0)}])
     def test_Gaussian2D_bin(self, psf_centers):
         y, x = np.ogrid[-3:3:7j, -3:3:7j]
         fwhm = 1.5
@@ -47,9 +43,7 @@ class TestGaussian2D:
 
         np.testing.assert_array_almost_equal(expected, binned)
 
-    @pytest.mark.parametrize(
-        "psf_centers", [{"x0": np.float64(0), "y0": np.float64(0)}]
-    )
+    @pytest.mark.parametrize("psf_centers", [{"x0": np.float64(0), "y0": np.float64(0)}])
     def test_Gaussian2D_sample(self, psf_centers):
         y, x = np.ogrid[-3:3:7j, -3:3:7j]
         fwhm = 1.5
@@ -101,6 +95,4 @@ class TestSimpleMicroscope:
         microscope = SimpleMicroscope(psf)
 
         with pytest.raises(ValueError):
-            microscope.response(
-                spatial_limits["x_lim"], spatial_limits["y_lim"], sample_response
-            )
+            microscope.response(spatial_limits["x_lim"], spatial_limits["y_lim"], sample_response)

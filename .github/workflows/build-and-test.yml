@@ -35,6 +35,7 @@ jobs:
           poetry run tox -e black
           poetry run tox -e isort
           poetry run tox -e mypy
+          poetry run tox -e pylint
       - name: Run tests
         shell: bash
         env:

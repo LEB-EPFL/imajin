@@ -35,9 +35,7 @@ def test_SimpleCMOSCamera_response_saturation(rs_stub):
     camera = SimpleCMOSCamera(bit_depth=bit_depth)
     photons = photons_avg * np.ones(camera.num_pixels)
 
-    rs_stub.poisson.return_value = (photons_avg + 0.1 * photons_avg) * np.ones(
-        camera.num_pixels
-    )
+    rs_stub.poisson.return_value = (photons_avg + 0.1 * photons_avg) * np.ones(camera.num_pixels)
     rs_stub.normal.return_value = 10 * np.ones(camera.num_pixels)
 
     img = camera.response(photons=photons, rng=rs_stub)
@@ -92,56 +90,56 @@ def test_SimpleCMOSCamera_response_photons_wrong_shape():
             "baseline": 100,
             "dark_noise": 2.29,
             "num_pixels": (64, 64),
-            "qe": -0.5,
+            "quantum_efficiency": -0.5,
             "sensitivity": 5.88,
         },
         {
             "baseline": 100,
             "dark_noise": 2.29,
             "num_pixels": (64, 64),
-            "qe": 1.5,
+            "quantum_efficiency": 1.5,
             "sensitivity": 5.88,
         },
         {
             "baseline": 100,
             "dark_noise": 2.29,
             "num_pixels": (64, 64),
-            "qe": 0.69,
+            "quantum_efficiency": 0.69,
             "sensitivity": -5.9,
         },
         {
             "baseline": 100,
             "dark_noise": -2.3,
             "num_pixels": (64, 64),
-            "qe": 0.69,
+            "quantum_efficiency": 0.69,
             "sensitivity": 5.88,
         },
         {
             "baseline": -50,
             "dark_noise": 2.29,
             "num_pixels": (64, 64),
-            "qe": 0.69,
+            "quantum_efficiency": 0.69,
             "sensitivity": 5.88,
         },
         {
             "baseline": -50,
             "dark_noise": 2.29,
             "num_pixels": (-64, 64),
-            "qe": 0.69,
+            "quantum_efficiency": 0.69,
             "sensitivity": 5.88,
         },
         {
             "baseline": -50,
             "dark_noise": 2.29,
             "num_pixels": (64, -64),
-            "qe": 0.69,
+            "quantum_efficiency": 0.69,
             "sensitivity": 5.88,
         },
         {
             "baseline": -50,
             "dark_noise": 2.29,
             "num_pixels": (-64, -64),
-            "qe": 0.69,
+            "quantum_efficiency": 0.69,
             "sensitivity": 5.88,
         },
     ],

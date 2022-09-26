@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generic, List, Optional, Protocol, Tuple, TypeVar
+from typing import Generic, List, Protocol, Tuple, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -49,7 +49,7 @@ SampleResponse = List[EmitterResponse]
 
 class Sample(Protocol):
     def response(self, time: float, dt: float, source: Source) -> SampleResponse:
-        pass
+        raise NotImplementedError
 
 
 class PSF(Protocol, Generic[T]):
@@ -58,7 +58,8 @@ class PSF(Protocol, Generic[T]):
     def bin(
         self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
     ) -> np.ndarray:
-        """Returns the proportion of a normalized PSF centered at (x0, y0) that intersects a square pixel at (x, y).
+        """Returns the proportion of a normalized PSF centered at (x0, y0) that intersects a square
+        pixel at (x, y).
 
         Units are in pixels. The origin of the coordinate system lies at the upper left corner of
         pixel [0, 0].
@@ -86,6 +87,7 @@ class Optics(Protocol):
         sample_response: SampleResponse,
     ) -> OpticsResponse:
         """Computes the response of the optical system to a collection of emitters."""
+        raise NotImplementedError
 
 
 DetectorResponse = np.ndarray
@@ -96,6 +98,7 @@ class Detector(Protocol):
 
     def response(self, photons: OpticsResponse, **kwargs) -> DetectorResponse:
         """Computes the response of the detector to an optical system."""
+        raise NotImplementedError
 
     @property
     def num_pixels(self) -> Tuple[int, int]:

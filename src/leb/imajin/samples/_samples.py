@@ -1,4 +1,4 @@
-from dataclasses import InitVar, dataclass, field
+from dataclasses import dataclass
 from typing import Generic, List, Sequence, TypeVar
 
 import numpy as np
@@ -122,20 +122,12 @@ class Fluorophore(Emitter, Validation, Generic[T]):
             raise ValueError("wavelength must be greater than zero")
         return value
 
-    def compute_on_fraction(
-        self, time: float, dt: float, state_changes: List[Event]
-    ) -> float:
+    def compute_on_fraction(self, time: float, dt: float, state_changes: List[Event]) -> float:
         """Returns a value between 0 and 1 representing the proportion of time in the ON state."""
         # No transitions occurred during the interval time + dt
-        if (
-            len(state_changes) == 0
-            and self.fluorescence_state == self.state_machine.current_state
-        ):
+        if len(state_changes) == 0 and self.fluorescence_state == self.state_machine.current_state:
             return 1
-        if (
-            len(state_changes) == 0
-            and self.fluorescence_state != self.state_machine.current_state
-        ):
+        if len(state_changes) == 0 and self.fluorescence_state != self.state_machine.current_state:
             return 0
 
         # Transitions occurred between energy levels during the interval time + dt
@@ -145,11 +137,11 @@ class Fluorophore(Emitter, Validation, Generic[T]):
         for event in state_changes:
             intervals.append((event.time - last_event_time, event.from_state))
             last_event_time = event.time
-        intervals.append((time + dt - last_event_time, event.to_state))
+        intervals.append((time + dt - last_event_time, state_changes[-1].to_state))
 
-        on_fraction = sum(
-            time for time, state in intervals if state == self.fluorescence_state
-        ) / (time + dt)
+        on_fraction = sum(time for time, state in intervals if state == self.fluorescence_state) / (
+            time + dt
+        )
         return on_fraction
 
     def compute_photon_rate(self, irradiance: float) -> float:

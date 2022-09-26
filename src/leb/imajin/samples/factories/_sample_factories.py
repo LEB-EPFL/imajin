@@ -16,15 +16,15 @@ class SampleType(Enum):
 def sample_factory(sample_type: SampleType, *args, **kwargs) -> Sample:
     if sample_type == SampleType.THREE_STATE_FLUOROPHORES:
         return three_state_fluorophores(*args, **kwargs)
-    else:
-        return NullSample()
+
+    return NullSample()
 
 
 def three_state_fluorophores(
     x: npt.ArrayLike,
     y: npt.ArrayLike,
     z: npt.ArrayLike,
-    *args,
+    *_,
     k_on=0.01,
     k_off=0.1,
     k_bleach=0.001,
@@ -33,7 +33,7 @@ def three_state_fluorophores(
     quantum_yield=0.8,
     wavelength=7,
     rng: Optional[np.random.Generator] = None,
-    **kwargs,
+    **__,
 ) -> Sample:
     """Creates fluorophores with three states: ON, OFF, and BLEACHED.
 

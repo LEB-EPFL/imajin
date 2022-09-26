@@ -22,10 +22,13 @@ class UniformMono2D(Source, Generic[T]):
         self.y_lim = y_lim
 
     def __repr__(self) -> str:
-        return f"UniformMono2D(power_max={self._power_max}, power={self.power}, x_lim={self.x_lim}, y_lim={self.y_lim})"
+        return (
+            f"UniformMono2D(power_max={self._power_max}, power={self.power}, "
+            f"x_lim={self.x_lim}, y_lim={self.y_lim})"
+        )
 
     @property
-    def POWER_MAX(self) -> float:
+    def power_max(self) -> float:
         return self._power_max
 
     @property
@@ -48,9 +51,7 @@ class UniformMono2D(Source, Generic[T]):
     @x_lim.setter
     def x_lim(self, value: Tuple[float, float]) -> None:
         if value[0] >= value[1]:
-            raise ValueError(
-                "the first value of x_lim must be less than the second value"
-            )
+            raise ValueError("the first value of x_lim must be less than the second value")
 
         self._x_lim = value
 
@@ -61,15 +62,11 @@ class UniformMono2D(Source, Generic[T]):
     @y_lim.setter
     def y_lim(self, value: Tuple[float, float]) -> None:
         if value[0] >= value[1]:
-            raise ValueError(
-                "the first value of y_lim must be less than the second value"
-            )
+            raise ValueError("the first value of y_lim must be less than the second value")
 
         self._y_lim = value
 
-    def e_field(
-        self, x: np.floating[T], y: np.floating[T], impedance: float = 1
-    ) -> npt.ArrayLike:
+    def e_field(self, x: np.floating[T], y: np.floating[T], impedance: float = 1) -> npt.ArrayLike:
         e_field: complex = np.sqrt(
             impedance * self.irradiance(x, y),
             dtype=complex,
@@ -79,11 +76,6 @@ class UniformMono2D(Source, Generic[T]):
     def irradiance(self, x: np.floating[T], y: np.floating[T]) -> float:
         if x < self.x_lim[0] or x > self.x_lim[1]:
             return 0.0
-        elif y < self.y_lim[0] or y > self.y_lim[1]:
+        if y < self.y_lim[0] or y > self.y_lim[1]:
             return 0.0
-        else:
-            return (
-                self.power
-                / (self.x_lim[1] - self.x_lim[0])
-                / (self.y_lim[1] - self.y_lim[0])
-            )
+        return self.power / (self.x_lim[1] - self.x_lim[0]) / (self.y_lim[1] - self.y_lim[0])

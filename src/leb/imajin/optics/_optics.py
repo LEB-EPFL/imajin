@@ -20,14 +20,14 @@ def safe_round(array: npt.ArrayLike, total: int) -> np.ndarray:
 
     # The number of elements to adjust. For integers, each element after rounding is within 0.5 of
     # the desired value, so the maximum adjustment is 1.
-    n = int(np.abs(error))
+    num_elements_to_adjust = int(np.abs(error))
 
     # np.argsort() returns an array of indices that would sort an array
     sorted_index_array = np.argsort(array - rounded_array, axis=None)
 
     # Add +/- 1 to the elements of the rounded_array with the n largest rounding errors
     safe_rounded_array = rounded_array.flatten()
-    safe_rounded_array[sorted_index_array[0:n]] += np.copysign(1, error)
+    safe_rounded_array[sorted_index_array[0:num_elements_to_adjust]] += np.copysign(1, error)
 
     return safe_rounded_array.reshape(array.shape)
 

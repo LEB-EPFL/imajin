@@ -1,8 +1,7 @@
-from enum import Enum, auto
-from typing import Optional, Tuple
+from enum import Enum
+from typing import Tuple
 
 import numpy as np
-import numpy.typing as npt
 from numpy import random
 
 from leb.imajin import Detector, DetectorResponse, OpticsResponse
@@ -23,21 +22,21 @@ class SimpleCMOSCamera(Detector):
         bit_depth: BitDepth = BitDepth.TWELVE,
         dark_noise: float = 2.29,
         num_pixels: Tuple[int, int] = (32, 32),
-        qe: float = 0.69,
+        quantum_efficiency: float = 0.69,
         sensitivity: float = 5.88,
     ):
         self.baseline = baseline
         self.bit_depth = bit_depth
         self.dark_noise = dark_noise
         self.num_pixels = num_pixels
-        self.qe = qe
+        self.quantum_efficiency = quantum_efficiency
         self.sensitivity = sensitivity
 
     def __repr__(self) -> str:
         return (
             f"SimpleCMOSCamera(baseline={self.baseline}, "
             f"bit_depth={self.bit_depth}, dark_noise={self.dark_noise}, "
-            f"num_pixels={self.num_pixels}, qe={self.qe}, "
+            f"num_pixels={self.num_pixels}, quantum_efficiency={self.quantum_efficiency}, "
             f"sensitivity={self.sensitivity})"
         )
 
@@ -75,15 +74,15 @@ class SimpleCMOSCamera(Detector):
         self._num_pixels = value
 
     @property
-    def qe(self) -> float:
-        return self._qe
+    def quantum_efficiency(self) -> float:
+        return self._quantum_efficiency
 
-    @qe.setter
-    def qe(self, value: float) -> None:
+    @quantum_efficiency.setter
+    def quantum_efficiency(self, value: float) -> None:
         if value < 0 or value > 1:
-            raise ValueError("qe must be between 0 and 1, inclusive")
+            raise ValueError("quantum_efficiency must be between 0 and 1, inclusive")
 
-        self._qe = value
+        self._quantum_efficiency = value
 
     @property
     def sensitivity(self) -> float:
@@ -111,13 +110,12 @@ class SimpleCMOSCamera(Detector):
         else:
             # Add shot noise and convert to electrons
             # Ignore typing so numpy can handle intermediate data types without mypy errors
-            photoelectrons = rng.poisson(self.qe * photons, size=photons.shape)  # type: ignore
+            photoelectrons = rng.poisson(
+                self.quantum_efficiency * photons, size=photons.shape
+            )  # type: ignore
 
         # Add dark noise
-        electrons = (
-            rng.normal(scale=self.dark_noise, size=photoelectrons.shape)
-            + photoelectrons
-        )
+        electrons = rng.normal(scale=self.dark_noise, size=photoelectrons.shape) + photoelectrons
 
         # Convert to ADU and add baseline
         adu = electrons * self.sensitivity
