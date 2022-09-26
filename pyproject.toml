@@ -20,6 +20,7 @@ python = ">=3.9,<3.12"
 black = "*"
 isort = ">=5.0"
 mypy = "*"
+pylint = "*"
 pytest = "^7.1"
 tox = "^3"
 
@@ -36,6 +37,7 @@ envlist =
     black
     isort
     mypy
+    pylint
     py39
     py310
 isolated_build = True
@@ -55,16 +57,18 @@ commands =
     black .
     isort .
 
-[testenv:{black, isort, mypy}]
+[testenv:{black, isort, mypy, pylint}]
 allowlist_externals =
     black
     isort
     mypy
+    pylint
 skip_install = True
 commands =
     black: black --check --diff .
     isort: isort --check --diff .
     mypy: mypy .
+    pylint: pylint src
 """
 
 [tool.isort]
@@ -75,3 +79,6 @@ warn_return_any = true
 warn_unused_configs = true
 
 plugins = "numpy.typing.mypy_plugin"
+
+[tool.pylint]
+max-line-length = 100
