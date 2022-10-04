@@ -1,6 +1,6 @@
 from dataclasses import InitVar, dataclass, field
 from functools import lru_cache
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -14,8 +14,46 @@ class Event:
     to_state: int
 
 
-def compute_rates_cached():
-    raise NotImplementedError
+def to_tuple(array):
+    """Converts any numpy array to (possibly) nested tuples."""
+    try:
+        return tuple(to_tuple(i) for i in array)
+    except TypeError:
+        return array
+
+
+@lru_cache()
+def compute_rates_cached(
+    control_params: Tuple[float, ...],
+    rate_constants: Tuple[Tuple[float]],
+    rate_coefficients: Tuple[Tuple[Tuple[Tuple]]],
+) -> np.ndarray:
+    _control_params: np.ndarray = np.array(control_params)
+    _rate_constants: np.ndarray = np.array(rate_constants)
+    _rate_coefficients: np.ndarray = np.array(rate_coefficients)
+
+    if _rate_coefficients.shape == (0,):
+        # Rates do not depend on any control parameters
+        return np.array(_rate_constants)
+    if _control_params.ndim != 1:
+        raise ValueError("the control parameters array must have a dimension of 1")
+    if _control_params.shape[0] != _rate_coefficients.shape[0]:
+        raise ValueError(
+            "the control parameters array must have the same number of elements as the first "
+            "dimension of the rate_coefficents array"
+        )
+
+    # Creates an L x M array where each row is a control parameter and each column is a control
+    # parameter value raised to a power equal to the column number starting from 1. For example,
+    # if control_params is np.array([1, 2]) and M = 3, then powers is
+    # np.array([[1, 1, 1], [2, 4, 8]]).
+    powers = np.power(
+        _control_params[:, np.newaxis],
+        np.arange(1, _rate_coefficients.shape[1] + 1),
+    )
+
+    # Returns a N x N array
+    return _rate_constants + np.tensordot(powers, _rate_coefficients)
 
 
 @dataclass
@@ -67,6 +105,10 @@ class StateMachine:
     rate_constants: np.ndarray
     rate_coefficients: np.ndarray
 
+    # Used for caching
+    _rate_constants: Tuple[Tuple[float]] = field(init=False, repr=False)
+    _rate_coefficients: Tuple[Tuple[Tuple[Tuple[float]]]] = field(init=False, repr=False)
+
     stopped: bool = False
     rng: Optional[np.random.Generator] = field(default=None, repr=False)
 
@@ -83,6 +125,8 @@ class StateMachine:
             )
 
         self._control_params = control_params
+        self._rate_constants = to_tuple(self.rate_constants)
+        self._rate_coefficients = to_tuple(self.rate_coefficients)
         self._next_event = self._compute_next_event(control_params, 0)
 
     def collect(self, control_params: np.ndarray, time: float, dt: float) -> List[Event]:
@@ -117,30 +161,9 @@ class StateMachine:
         self._next_event = self._compute_next_event(control_params, t_offset)
 
     def _compute_rates(self, control_params: np.ndarray) -> np.ndarray:
-        # TODO Cache results
-        control_params = np.asanyarray(control_params)
-        if self.rate_coefficients.shape == (0,):
-            # Rates do not depend on any control parameters
-            return self.rate_constants
-        if control_params.ndim != 1:
-            raise ValueError("the control parameters array must have a dimension of 1")
-        if control_params.shape[0] != self.rate_coefficients.shape[0]:
-            raise ValueError(
-                "the control parameters array must have the same number of elements as the first "
-                "dimension of the rate_coefficents array"
-            )
-
-        # Creates an L x M array where each row is a control parameter and each column is a control
-        # parameter value raised to a power equal to the column number starting from 1. For example,
-        # if control_params is np.array([1, 2]) and M = 3, then powers is
-        # np.array([[1, 1, 1], [2, 4, 8]]).
-        powers = np.power(
-            control_params[:, np.newaxis],
-            np.arange(1, self.rate_coefficients.shape[1] + 1),
+        return compute_rates_cached(
+            tuple(control_params), self._rate_constants, self._rate_coefficients
         )
-
-        # Returns a N x N array
-        return self.rate_constants + np.tensordot(powers, self.rate_coefficients)
 
     def _compute_next_event(self, control_params: np.ndarray, t_offset: float) -> Event:
         if self.current_state in self._stopped_states():

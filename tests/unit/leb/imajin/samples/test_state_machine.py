@@ -100,9 +100,7 @@ class TestNextEvent:
 class TestComputeRates:
     @pytest.mark.usefixtures("two_control_params_second_order")
     def test_state_machine_compute_rates_base(self, two_control_params_second_order, benchmark):
-        """The base test (including benchmarks) for the compute rates method of StateMachine.
-        
-        """
+        """The base test (including benchmarks) for the compute rates method of StateMachine."""
         s = StateMachine(
             0,
             two_control_params_second_order.control_params,
@@ -110,7 +108,9 @@ class TestComputeRates:
             two_control_params_second_order.rate_coefficients,
         )
 
-        result = benchmark(StateMachine._compute_rates, s, two_control_params_second_order.control_params)
+        result = benchmark(
+            StateMachine._compute_rates, s, two_control_params_second_order.control_params
+        )
 
         np.testing.assert_array_equal(two_control_params_second_order.expected_result, result)
 
