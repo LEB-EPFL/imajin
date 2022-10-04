@@ -1,4 +1,5 @@
 from dataclasses import InitVar, dataclass, field
+from functools import lru_cache
 from typing import List, Optional
 
 import numpy as np
@@ -11,6 +12,10 @@ class Event:
     time: float
     from_state: int
     to_state: int
+
+
+def compute_rates_cached():
+    raise NotImplementedError
 
 
 @dataclass
