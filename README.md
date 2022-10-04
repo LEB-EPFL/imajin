@@ -1,6 +1,6 @@
 # Imajin
 
-[build](https://github.com/LEB-EPFL/imajin/actions/workflows/build.yml/badge.svg)
+![build](https://github.com/LEB-EPFL/imajin/actions/workflows/build.yml/badge.svg)
 
 Tools to simulate optics and microscopy experiments.
 
