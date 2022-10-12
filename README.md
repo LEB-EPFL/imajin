@@ -71,6 +71,20 @@ poetry run tox -e format
 poetry lock
 ```
 
+### Profiling
+
+Profiling will tell you how long the code spends in each function call. A few benchmarks are already setup for profiling.
+
+```
+poetry run tox -e profile
+```
+
+To view the results of, for example, test_benchmark_simulator_0_result.json:
+
+```console
+poetry run vizviewer test_benchmark_simulator_0_result.json
+```
+
 ### Troubleshooting
 
 #### Poetry is using the wrong Python version

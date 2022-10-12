@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Optional, Protocol, Sequence, Tuple
 
@@ -66,6 +67,8 @@ class Simulator(Validation):
         if self.rng is None:
             self.rng = random.default_rng()
 
+        self._initial_state = deepcopy(self)
+
     def validate_num_measurements(self, value: int, **_) -> int:
         if value < 0:
             raise ValueError("num_measurements must be greater than zero")
@@ -94,10 +97,17 @@ class Simulator(Validation):
 
         return detector_response
 
-    def run(self) -> np.ndarray:
+    def run(self, reset: bool = False) -> np.ndarray:
         rows, cols = self.detector.num_pixels
         measurements = np.zeros((self.num_measurements, rows, cols))
         for num in range(self.num_measurements):
             measurements[num, :, :] = self.step()
 
+        if reset:
+            self.reset()
+
         return measurements
+
+    def reset(self) -> None:
+        """Resets the simulator to its original state."""
+        self.__dict__.update(self._initial_state.__dict__)

@@ -1,6 +1,9 @@
 # pytest-benchmark
 .benchmarks/
 
+# viztracer results
+*result.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
