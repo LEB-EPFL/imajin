@@ -46,11 +46,15 @@ class SimpleMicroscope(Optics):
         total_photons = np.zeros((y_lim[1], x_lim[1]))
         y, x = np.ogrid[y_lim[0] : y_lim[1], x_lim[0] : x_lim[1]]
 
-        # TODO Handle truncation of an emitter by the edges of the computational grid
         for emitter in sample_response:
-            emitted_photons = self.psf.bin(x, y, emitter.x, emitter.y) * emitter.photons
-            emitted_photons = safe_round(emitted_photons, emitter.photons)
-            total_photons += emitted_photons
+            # Account for PSFs that are near the edge of the image
+            psf_area = self.psf.bin(0, 0, emitter.x, emitter.y, x_lim[1], y_lim[1]).sum()
+            assert psf_area <= 1.0, "The integrated PSF area must be less than or equal to 1"
+            emitted_and_clipped_photons = emitter.photons * psf_area
+
+            binned_photons = self.psf.bin(x, y, emitter.x, emitter.y) * emitted_and_clipped_photons
+            binned_photons = safe_round(binned_photons, emitted_and_clipped_photons)
+            total_photons += binned_photons
 
         return total_photons.astype(np.uint64)
 

@@ -28,15 +28,33 @@ class Gaussian2D(PSF, Generic[T]):
         self._fwhm = value
 
     def bin(
-        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
+        self,
+        x: npt.ArrayLike,
+        y: npt.ArrayLike,
+        x0: np.floating[T],
+        y0: np.floating[T],
+        dx: float = 1,
+        dy: float = 1,
     ) -> np.ndarray:
+        """Compute the integrated number of photons across a pixel from an emitter at (x0, y0).
+
+        Parameters
+        ----------
+        x: numpy.typing.ArrayLike
+        y: numpy.typing.ArrayLike
+        x0: numpy.floating
+        y0: numpy.floating
+        dx: float
+            The size of a pixel in the x-dirction. (Default: 1.0)
+        dy: float
+            The size of a pixel in the y-direction. (Default: 1.0)
+        """
         x, y = np.asanyarray(x), np.asanyarray(y)
-        grid_size = 1
         scale = np.sqrt(2) * self.fwhm / 2.3548
         binned_values: np.ndarray = (
             0.25
-            * (special.erf((x - x0 + grid_size) / scale) - special.erf((x - x0) / scale))
-            * (special.erf((y - y0 + grid_size) / scale) - special.erf((y - y0) / scale))
+            * (special.erf((x - x0 + dx) / scale) - special.erf((x - x0) / scale))
+            * (special.erf((y - y0 + dy) / scale) - special.erf((y - y0) / scale))
         )
         return binned_values
 
