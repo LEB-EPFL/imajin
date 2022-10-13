@@ -29,9 +29,6 @@ class Parameters:
 
 
 def new_simulator() -> Simulator:
-    # Take 100 images at 0.01 intervals per unit time on a 32 pixel x 32 pixel grid starting at
-    # time = 0
-
     rng = np.random.default_rng()
 
     # Create a uniform source of monochromatic illumination covering the computational space with
