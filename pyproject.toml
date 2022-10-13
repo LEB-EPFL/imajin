@@ -12,6 +12,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
+numba = "*"
 numpy = "*"
 scipy = ">=1.9"
 python = ">=3.9,<3.12"

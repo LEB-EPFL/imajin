@@ -5,7 +5,7 @@ import pytest
 from scipy import special  # type: ignore
 
 from leb.imajin import EmitterResponse, SampleResponse
-from leb.imajin.optics import Gaussian2D, SimpleMicroscope
+from leb.imajin.optics import Gaussian2D, SimpleMicroscope, safe_round
 
 
 def gauss2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
@@ -29,6 +29,16 @@ def erf2d(x=0, y=0, x0=0, y0=0, sx=1, sy=1):
         * (special.erf((x - x0 + 1) / sx / sqrt2) - special.erf((x - x0) / sx / sqrt2))
         * (special.erf((y - y0 + 1) / sy / sqrt2) - special.erf((y - y0) / sy / sqrt2))
     )
+
+
+def test_safe_round(benchmark):
+    # Create 9 x 9 array of random data whose sum should be almost 1 x 9 x 9 = 81
+    total = 81
+    data = np.random.normal(loc=1, scale=0.01, size=(9, 9))
+
+    result = benchmark(safe_round, data, 81)
+
+    assert total == result.sum()
 
 
 class TestGaussian2D:
