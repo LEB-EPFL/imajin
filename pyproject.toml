@@ -24,6 +24,7 @@ pylint = "*"
 pytest = "^7.1"
 pytest-benchmark = "*"
 tox = "^3"
+viztracer = "*"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -52,7 +53,13 @@ commands =
 [testenv:benchmark]
 allowlist_externals = pytest
 commands =
-    pytest --benchmark-only --benchmark-autosave
+    pytest --benchmark-only --benchmark-autosave --reset
+
+[testenv:profile]
+allowlist_externals = poetry
+commands =
+    poetry install -v
+    poetry run python tests/integration/test_benchmark_simulator_0.py
 
 [testenv:format]
 allowlist_externals = 
