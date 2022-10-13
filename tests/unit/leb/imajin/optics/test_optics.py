@@ -62,6 +62,11 @@ class TestGaussian2D:
 
 class TestSimpleMicroscope:
     @pytest.fixture
+    def microscope(self):
+        psf = Gaussian2D(fwhm=2)
+        return SimpleMicroscope(psf=psf)
+
+    @pytest.fixture
     def sample_response(self):
         return [
             EmitterResponse(4.0, 4.0, 0.0, 100, 0.7e-6),
@@ -78,8 +83,11 @@ class TestSimpleMicroscope:
 
         assert photons.shape == (y_lim[1], x_lim[1])
 
-        # The sum of all photons should be equal to the photons emitted by all fluorophores.
-        assert np.sum(photons) == sum(r.photons for r in sample_response)
+        # The sum of all photons should be equal to the photons emitted by all fluorophores, with a
+        # small error due to PSF clipping at the edges. Expected 1100 without clipping.
+        np.testing.assert_approx_equal(
+            np.sum(photons), sum(r.photons for r in sample_response), significant=3
+        )
 
     @pytest.mark.parametrize(
         "spatial_limits",
@@ -96,3 +104,18 @@ class TestSimpleMicroscope:
 
         with pytest.raises(ValueError):
             microscope.response(spatial_limits["x_lim"], spatial_limits["y_lim"], sample_response)
+
+    def test_psf_clipping(self, microscope):
+        """Emitters near the border of the computational grid should have their responses scaled."""
+        x_lim = (0, 16)
+        y_lim = (0, 16)
+
+        # An emitter at (0, 0) with a rotationally-symmetric PSF will have 3/4 of its number of photons
+        # lost due to clipping of its image because the camera's upper left corner is at (0, 0).
+        photons = 100
+        expected_num_photons = photons / 4
+        sample_response = [EmitterResponse(x=0, y=0, z=0, photons=photons, wavelength=700)]
+
+        optics_response = microscope.response(x_lim, y_lim, sample_response)
+
+        assert expected_num_photons == optics_response.sum()

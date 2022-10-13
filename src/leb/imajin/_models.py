@@ -56,10 +56,16 @@ class PSF(Protocol, Generic[T]):
     """The point spread function is a response of an optical system to a single point source."""
 
     def bin(
-        self, x: npt.ArrayLike, y: npt.ArrayLike, x0: np.floating[T], y0: np.floating[T]
+        self,
+        x: npt.ArrayLike,
+        y: npt.ArrayLike,
+        x0: np.floating[T],
+        y0: np.floating[T],
+        dx: float = 1,
+        dy: float = 1,
     ) -> np.ndarray:
-        """Returns the proportion of a normalized PSF centered at (x0, y0) that intersects a square
-        pixel at (x, y).
+        """Returns the proportion of a normalized PSF centered at (x0, y0) that intersects a
+        rectangular area at (x, y) with side-lenghts (dx, dy).
 
         Units are in pixels. The origin of the coordinate system lies at the upper left corner of
         pixel [0, 0].
