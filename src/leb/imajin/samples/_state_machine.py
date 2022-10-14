@@ -1,8 +1,12 @@
+import os
 from dataclasses import InitVar, dataclass, field
 from functools import lru_cache
 from typing import List, Optional, Tuple
 
 import numpy as np
+
+CACHE_SIZE_SM_RATES: int = int(os.environ.get("IMAJIN_CACHE_SIZE_SM_RATES", 100000))
+CACHE_SIZE_SM_STOPPED_STATES: int = int(os.environ.get("IMAJIN_CACHE_SIZE_SM_STOPPED_STATES", 1))
 
 
 @dataclass
@@ -22,11 +26,11 @@ def to_tuple(array):
         return array
 
 
-@lru_cache()
+@lru_cache(maxsize=CACHE_SIZE_SM_RATES)
 def compute_rates_cached(
     control_params: Tuple[float, ...],
     rate_constants: Tuple[Tuple[float]],
-    rate_coefficients: Tuple[Tuple[Tuple[Tuple]]],
+    rate_coefficients: Tuple[Tuple[Tuple[Tuple[float]]]],
 ) -> np.ndarray:
     _control_params: np.ndarray = np.array(control_params)
     _rate_constants: np.ndarray = np.array(rate_constants)
@@ -56,7 +60,7 @@ def compute_rates_cached(
     return _rate_constants + np.tensordot(powers, _rate_coefficients)
 
 
-@lru_cache()
+@lru_cache(maxsize=CACHE_SIZE_SM_STOPPED_STATES)
 def stopped_states_cached(
     rate_constants: Tuple[Tuple[float]], rate_coefficients: Tuple[Tuple[Tuple[Tuple[float]]]]
 ) -> List[int]:

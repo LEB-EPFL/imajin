@@ -100,7 +100,7 @@ plugins = "numpy.typing.mypy_plugin"
 max-line-length = 100
 
 [tool.pylint."messages control"]
-disable = "fixme, missing-docstring, too-few-public-methods, too-many-arguments, too-many-instance-attributes, too-many-locals"
+disable = "missing-docstring, too-few-public-methods, too-many-arguments, too-many-instance-attributes, too-many-locals"
 good-names = ["x", "x0", "x_", "dx", "y", "y0", "y_", "dy", "z", "z0", "z_", "dt"]
 ignored-classes = "Validation"
 ignored-modules = "scipy.special"

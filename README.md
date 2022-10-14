@@ -8,6 +8,13 @@ Tools to simulate optics and microscopy experiments.
 
 See the [integration tests](tests/integration/) for examples.
 
+### Performance Tuning
+
+The simulation's performance may be tuned by setting various environment variables:
+
+- `IMAJIN_CACHE_SIZE_SM_RATES` -- The size of the cache storing the state machine rate computations. The recommended value is equal to the number of fluorophores in the simulation.
+- `IMAJIN_CACHE_SIZE_SM_STOPPED_STATES` - The size of the cache holding the state machines' stopped states. The recommended value is equal to the number of distinct fluorophore types in the simulation. Usually this is just 1.
+
 ## Installation
 
 Choose one of the following methods. It is recommended to install into a virtual environment.
@@ -74,7 +81,7 @@ poetry lock
 
 Profiling will tell you how long the code spends in each function call. A few benchmarks are already setup for profiling.
 
-```
+```console
 poetry run tox -e profile
 ```
 
