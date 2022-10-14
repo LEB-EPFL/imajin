@@ -96,5 +96,5 @@ if __name__ == "__main__":
 
     simulator = new_simulator()
 
-    with VizTracer(output_file=filename) as tracer:
+    with VizTracer(max_stack_depth=10, tracer_entries=1000000, output_file=filename) as tracer:
         simulator.run()

@@ -3,15 +3,14 @@ from typing import Tuple
 
 import numpy as np
 import numpy.typing as npt
+from numba import njit
 
 from leb.imajin import PSF, Optics, SampleResponse
 
 
-def safe_round(array: npt.ArrayLike, total: int) -> np.ndarray:
+@njit
+def safe_round(array: np.ndarray, total: int) -> np.ndarray:
     """Rounds an array of floats, maintaining their integer sum."""
-    array = np.asanyarray(array)
-
-    # Round the array to the nearest integer
     rounded_array: np.ndarray = np.rint(array)
     error = total - np.sum(rounded_array)
 
@@ -23,7 +22,8 @@ def safe_round(array: npt.ArrayLike, total: int) -> np.ndarray:
     num_elements_to_adjust = int(np.abs(error))
 
     # np.argsort() returns an array of indices that would sort an array
-    sorted_index_array = np.argsort(array - rounded_array, axis=None)
+    flattened = (array - rounded_array).ravel()
+    sorted_index_array = np.argsort(flattened)
 
     # Add +/- 1 to the elements of the rounded_array with the n largest rounding errors
     safe_rounded_array = rounded_array.flatten()
