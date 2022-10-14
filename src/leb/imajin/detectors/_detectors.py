@@ -1,10 +1,11 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Tuple
 
 import numpy as np
 from numpy import random
 
-from leb.imajin import Detector, DetectorResponse, OpticsResponse
+from leb.imajin import Detector, DetectorResponse, OpticsResponse, Validation
 
 
 class BitDepth(Enum):
@@ -15,85 +16,39 @@ class BitDepth(Enum):
     THIRTYTWO = (32, np.uint32)
 
 
-class SimpleCMOSCamera(Detector):
-    def __init__(
-        self,
-        baseline: int = 100,
-        bit_depth: BitDepth = BitDepth.TWELVE,
-        dark_noise: float = 2.29,
-        num_pixels: Tuple[int, int] = (32, 32),
-        quantum_efficiency: float = 0.69,
-        sensitivity: float = 5.88,
-    ):
-        self.baseline = baseline
-        self.bit_depth = bit_depth
-        self.dark_noise = dark_noise
-        self.num_pixels = num_pixels
-        self.quantum_efficiency = quantum_efficiency
-        self.sensitivity = sensitivity
+@dataclass(frozen=True, slots=True)
+class SimpleCMOSCamera(Detector, Validation):
+    baseline: int = 100
+    bit_depth: BitDepth = BitDepth.TWELVE
+    dark_noise: float = 2.29
+    num_pixels: Tuple[int, int] = (32, 32)
+    quantum_efficiency: float = 0.69
+    sensitivity: float = 5.88
 
-    def __repr__(self) -> str:
-        return (
-            f"SimpleCMOSCamera(baseline={self.baseline}, "
-            f"bit_depth={self.bit_depth}, dark_noise={self.dark_noise}, "
-            f"num_pixels={self.num_pixels}, quantum_efficiency={self.quantum_efficiency}, "
-            f"sensitivity={self.sensitivity})"
-        )
-
-    @property
-    def baseline(self) -> int:
-        return self._baseline
-
-    @baseline.setter
-    def baseline(self, value: int) -> None:
+    def validate_baseline(self, value: int, **_) -> int:
         if value < 0:
             raise ValueError("baseline must be greater than zero")
+        return value
 
-        self._baseline = value
-
-    @property
-    def dark_noise(self) -> float:
-        return self._dark_noise
-
-    @dark_noise.setter
-    def dark_noise(self, value: float) -> None:
+    def validate_dark_noise(self, value: float, **_) -> float:
         if value < 0:
             raise ValueError("dark_noise must be greater than zero")
+        return value
 
-        self._dark_noise = value
-
-    @property
-    def num_pixels(self) -> Tuple[int, int]:
-        return self._num_pixels
-
-    @num_pixels.setter
-    def num_pixels(self, value: Tuple[int, int]) -> None:
+    def validate_num_pixels(self, value: Tuple[int, int], **_) -> Tuple[int, int]:
         if value[0] < 0 or value[1] < 0:
             raise ValueError("num_pixels must be a 2-tuple of positive integers")
+        return value
 
-        self._num_pixels = value
-
-    @property
-    def quantum_efficiency(self) -> float:
-        return self._quantum_efficiency
-
-    @quantum_efficiency.setter
-    def quantum_efficiency(self, value: float) -> None:
+    def validate_quantum_efficiency(self, value: float, **_) -> float:
         if value < 0 or value > 1:
             raise ValueError("quantum_efficiency must be between 0 and 1, inclusive")
+        return value
 
-        self._quantum_efficiency = value
-
-    @property
-    def sensitivity(self) -> float:
-        return self._sensitivity
-
-    @sensitivity.setter
-    def sensitivity(self, value: float) -> None:
+    def validate_sensitivity(self, value: float, **_) -> float:
         if value < 0:
             raise ValueError("sensitivity must be greater than zero")
-
-        self._sensitivity = value
+        return value
 
     def response(self, photons: OpticsResponse, **kwargs) -> DetectorResponse:
         """Computes the response of the detector to an optical system."""
