@@ -41,7 +41,6 @@ envlist =
     isort
     mypy
     pylint
-    py39
     py310
 isolated_build = True
 

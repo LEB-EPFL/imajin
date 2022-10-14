@@ -27,7 +27,7 @@ See https://docs.github.com/en/authentication/keeping-your-account-and-data-secu
 ### Setup the development environment
 
 1. Install [pyenv](https://github.com/pyenv/pyenv): `curl https://pyenv.run | bash`
-2. Install Python interpreters: `pyenv install 3.9.13 && pyenv install 3.10.6`
+2. Install Python interpreter(s): `pyenv install 3.10.6`
 3. Install [poetry](https://python-poetry.org/docs/): `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -`
 4. Set the virtual environment Python version to 3.10: `poetry env use 3.10`
 4. Activate the virtual environment: `poetry shell`
@@ -48,8 +48,7 @@ poetry run tox
 poetry run tox -e black
 # etc. ...
 
-# Python 3.9/3.10 tests
-poetry run tox -e py39
+# Python 3.X tests
 poetry run tox -e py310
 ```
 
