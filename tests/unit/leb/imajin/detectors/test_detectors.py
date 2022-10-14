@@ -29,6 +29,14 @@ def test_SimpleCMOSCamera_response_correct_value(rs_stub):
     assert np.uint16 == img.dtype
 
 
+def test_SimpleCMOSCamera_response_benchmark(benchmark):
+    photons_avg = 100
+    camera = SimpleCMOSCamera()
+    photons = photons_avg * np.ones(camera.num_pixels)
+
+    benchmark(SimpleCMOSCamera.response, camera, photons=photons)
+
+
 def test_SimpleCMOSCamera_response_saturation(rs_stub):
     photons_avg = 1e10
     bit_depth = BitDepth.EIGHT

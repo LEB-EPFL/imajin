@@ -14,7 +14,7 @@ jobs:
       matrix:
         # 3.10.6 pinned until the following issue is fixed:
         # https://github.com/python/mypy/issues/13627
-        python-version: ["3.9", "3.10.6"]
+        python-version: ["3.10.6"]
         os: [ubuntu-latest, windows-latest]
     
     runs-on: ${{ matrix.os }}
