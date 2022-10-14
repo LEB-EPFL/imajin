@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from typing import Tuple
 
 import numpy as np
-import numpy.typing as npt
-from numba import njit
+from numba import njit  # type: ignore
 
 from leb.imajin import PSF, Optics, SampleResponse
 
