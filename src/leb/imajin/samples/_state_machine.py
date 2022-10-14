@@ -56,6 +56,31 @@ def compute_rates_cached(
     return _rate_constants + np.tensordot(powers, _rate_coefficients)
 
 
+@lru_cache()
+def stopped_states_cached(
+    rate_constants: Tuple[Tuple[float]], rate_coefficients: Tuple[Tuple[Tuple[Tuple[float]]]]
+) -> List[int]:
+    """Caches the results of StateMachine.stopped_states()"""
+    _rate_constants: np.ndarray = np.array(rate_constants)
+    _rate_coefficients: np.ndarray = np.array(rate_coefficients)
+
+    num_states = _rate_constants.shape[0]
+    stopped_states_indexes = [True] * num_states
+
+    for control_param in _rate_coefficients:
+        for power in control_param:
+            for from_state, rates in enumerate(power):
+                if any(rates != 0):
+                    stopped_states_indexes[from_state] = False
+
+    for from_state, constants in enumerate(_rate_constants):
+        if any(constants != 0):
+            stopped_states_indexes[from_state] = False
+
+    stopped_states = [x for x in range(num_states) if stopped_states_indexes[x]]
+    return stopped_states
+
+
 @dataclass
 class StateMachine:
     """A state machine with transitions between states that are exponential random processes.
@@ -209,18 +234,4 @@ class StateMachine:
             Integer IDs of states from which the machine cannot advance.
 
         """
-        num_states = self.rate_constants.shape[0]
-        stopped_states_indexes = [True] * num_states
-
-        for control_param in self.rate_coefficients:
-            for power in control_param:
-                for from_state, rates in enumerate(power):
-                    if any(rates != 0):
-                        stopped_states_indexes[from_state] = False
-
-        for from_state, rate_constants in enumerate(self.rate_constants):
-            if any(rate_constants != 0):
-                stopped_states_indexes[from_state] = False
-
-        stopped_states = [x for x in range(num_states) if stopped_states_indexes[x]]
-        return stopped_states
+        return stopped_states_cached(self._rate_constants, self._rate_coefficients)
