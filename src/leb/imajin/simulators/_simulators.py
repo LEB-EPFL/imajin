@@ -1,6 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Optional, Protocol, Sequence, Tuple
+from functools import wraps
+from typing import Callable, Optional, Protocol, Sequence, Tuple
 
 import numpy as np
 from numpy import random
@@ -15,6 +16,26 @@ from leb.imajin import (
     Source,
     Validation,
 )
+
+
+@dataclass(frozen=True)
+class StepResponse:
+    """The data from a single simulation step.
+
+    Attributes
+    ----------
+    sample_response: SampleResponse
+        The response of the sample to the radiation source.
+    optics_response: OpticsResponse
+        The response of the optical system to the sample.
+    detector_response: DetectorResponse
+        The response of the detector to the optical system and sample.
+
+    """
+
+    sample_response: SampleResponse
+    optics_response: OpticsResponse
+    detector_response: DetectorResponse
 
 
 class Processor(Protocol):
@@ -32,11 +53,31 @@ class Processor(Protocol):
     def __call__(
         self,
         simulator: "Simulator",
-        detector_response: Optional[DetectorResponse] = None,
-        sample_response: Optional[SampleResponse] = None,
-        optics_response: Optional[OpticsResponse] = None,
+        step_response: Optional[StepResponse] = None,
     ) -> None:
         """Processes the state of the simulation."""
+
+
+def process(step: Callable[["Simulator"], StepResponse]) -> Callable[["Simulator"], StepResponse]:
+    @wraps(step)
+    def wrapper(self: "Simulator"):
+        assert self.preprocessors is not None
+        assert self.post_processors is not None
+
+        for processor in self.preprocessors:
+            processor(self)
+
+        step_response = step(self)
+
+        for processor in self.post_processors:
+            processor(
+                self,
+                step_response=step_response,
+            )
+
+        return step_response
+
+    return wrapper
 
 
 @dataclass
@@ -74,34 +115,22 @@ class Simulator(Validation):
             raise ValueError("num_measurements must be greater than zero")
         return value
 
-    def step(self) -> DetectorResponse:
-        assert self.preprocessors is not None
-        assert self.post_processors is not None
-
-        for processor in self.preprocessors:
-            processor(self)
-
+    @process
+    def step(self) -> StepResponse:
         sample_response = self.sample.response(self.time, self.dt, self.source)
         optics_response = self.optics.response(self.x_lim, self.y_lim, sample_response)
         detector_response = self.detector.response(optics_response, rng=self.rng)
 
         self.time += self.dt
 
-        for processor in self.post_processors:
-            processor(
-                self,
-                detector_response=detector_response,
-                sample_response=sample_response,
-                optics_response=optics_response,
-            )
-
-        return detector_response
+        return StepResponse(sample_response, optics_response, detector_response)
 
     def run(self, reset: bool = False) -> np.ndarray:
         rows, cols = self.detector.num_pixels
         measurements = np.zeros((self.num_measurements, rows, cols))
         for num in range(self.num_measurements):
-            measurements[num, :, :] = self.step()
+            step_response = self.step()
+            measurements[num, :, :] = step_response.detector_response
 
         if reset:
             self.reset()
