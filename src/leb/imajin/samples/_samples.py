@@ -1,5 +1,6 @@
+from concurrent.futures import Executor
 from dataclasses import dataclass
-from typing import Generic, List, Sequence, TypeVar
+from typing import Generic, List, Optional, Sequence, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -19,7 +20,9 @@ T = TypeVar("T", bound=npt.NBitBase)
 
 
 class NullSample(Sample):
-    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
+    def response(
+        self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
+    ) -> SampleResponse:
         """A null sample does not respond to a radiation source."""
         return []
 
@@ -63,11 +66,15 @@ class ConstantEmitters(Sample):
 
         self._wavelength = value
 
-    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
+    def response(
+        self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
+    ) -> SampleResponse:
         """Returns the response of the emitters to the radiation source.
 
         ConstantEmitters emit a constant number of photons per unit time interval, regardless of
         the state of the radiation source.
+
+        The executor argument is ignored in this class; the response method is not parallelizable.
 
         """
         photons = int(self.rate * dt)
@@ -170,7 +177,9 @@ class Fluorophore(Emitter, Validation, Generic[T]):
 class Emitters(Sample):
     emitters: Sequence[Emitter]
 
-    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
+    def response(
+        self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
+    ) -> SampleResponse:
         responses = []
         for emitter in self.emitters:
             responses.append(emitter.response(time, dt, source))

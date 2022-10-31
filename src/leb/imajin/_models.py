@@ -1,5 +1,6 @@
+from concurrent.futures import Executor
 from dataclasses import dataclass
-from typing import Generic, List, Protocol, Tuple, TypeVar
+from typing import Generic, List, Optional, Protocol, Tuple, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -48,7 +49,25 @@ SampleResponse = List[EmitterResponse]
 
 
 class Sample(Protocol):
-    def response(self, time: float, dt: float, source: Source) -> SampleResponse:
+    def response(
+        self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
+    ) -> SampleResponse:
+        """Computes the sample's response to a source of ratiation.
+
+        Parameters
+        ----------
+        time: float
+            The absolute time marking the start of the sample response.
+        dt: float
+            The length of the sample response in time. The sample's response will be computed over
+            the interval t + dt.
+        source: leb.imajin.Source
+            A model of a radiation source that will produce a response from the sample.
+        executor: concurrent.futures.executor
+            An executor instance for samples whose responses may be computed in parallel. Compute-
+            bound samples should use a process pool executor.
+
+        """
         raise NotImplementedError
 
 
