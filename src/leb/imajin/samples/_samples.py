@@ -182,6 +182,9 @@ def _parallel_response(func: Callable[[], EmitterResponse]) -> EmitterResponse:
 class Emitters(Sample):
     emitters: Sequence[Emitter]
 
+    def __len__(self) -> int:
+        return len(self.emitters)
+
     def response(
         self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
     ) -> SampleResponse:
@@ -198,7 +201,13 @@ class Emitters(Sample):
     def _response_parallel(
         self, time: float, dt: float, source: Source, executor: Executor
     ) -> SampleResponse:
+        # Using a private attribute... not great. Yolo.
+        num_workers = executor._max_workers
+
+        # chunk_size is set so that a worker handles a subset of emitters only once per call
+        chunk_size = len(self) // num_workers + 1
+
         # Build a list of partial functions with zero arguments to workaround having to send args
         # to the executor
         funcs = [partial(emitter.response, time, dt, source) for emitter in self.emitters]
-        return list(executor.map(_parallel_response, funcs))
+        return list(executor.map(_parallel_response, funcs, chunksize=chunk_size))
