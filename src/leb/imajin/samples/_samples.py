@@ -180,7 +180,17 @@ class Emitters(Sample):
     def response(
         self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
     ) -> SampleResponse:
+        if executor is None:
+            return self._response_serial(time, dt, source)
+        return self._response_parallel(time, dt, source, executor)
+
+    def _response_serial(self, time: float, dt: float, source: Source) -> SampleResponse:
         responses = []
         for emitter in self.emitters:
             responses.append(emitter.response(time, dt, source))
         return responses
+
+    def _response_parallel(
+        self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
+    ) -> SampleResponse:
+        raise NotImplementedError
