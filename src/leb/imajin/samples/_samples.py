@@ -1,6 +1,7 @@
 from concurrent.futures import Executor
 from dataclasses import dataclass
-from typing import Generic, List, Optional, Sequence, TypeVar
+from functools import partial
+from typing import Callable, Generic, List, Optional, Sequence, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -173,6 +174,10 @@ class Fluorophore(Emitter, Validation, Generic[T]):
         return EmitterResponse(self.x, self.y, self.z, photons, self.wavelength)
 
 
+def _parallel_eval(func: Callable[[], EmitterResponse]) -> EmitterResponse:
+    return func()
+
+
 @dataclass
 class Emitters(Sample):
     emitters: Sequence[Emitter]
@@ -191,6 +196,9 @@ class Emitters(Sample):
         return responses
 
     def _response_parallel(
-        self, time: float, dt: float, source: Source, executor: Optional[Executor] = None
+        self, time: float, dt: float, source: Source, executor: Executor
     ) -> SampleResponse:
-        raise NotImplementedError
+        # Builds a sequence of partial functions to work around having to pass args to the workers
+        funcs = [partial(Emitters.response, emitter, time, dt, source) for emitter in self.emitters]
+
+        return list(executor.map(_parallel_eval, funcs))
