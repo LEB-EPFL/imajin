@@ -102,8 +102,12 @@ class Simulator(Validation):
         If provided, an executor instance will be passed to the individual model components for
         parallel computation.
     rng: numpy.random.Generator
+    backup: bool
+        If True, a backup copy of the simulator will be made which will allow the Simulator
+        instance to be reset.
 
     """
+
     detector: Detector
     optics: Optics
     sample: Sample
@@ -122,6 +126,8 @@ class Simulator(Validation):
 
     rng: Optional[random.Generator] = None
 
+    backup: bool = True
+
     def __post_init__(self):
         if self.preprocessors is None:
             self.preprocessors = []
@@ -132,7 +138,29 @@ class Simulator(Validation):
         if self.rng is None:
             self.rng = random.default_rng()
 
-        self._initial_state = deepcopy(self)
+        if self.backup:
+            self._initial_state = deepcopy(self)
+
+    def __deepcopy__(self, memo) -> "Simulator":
+        # Create a reference to the executor, instead of deepcopying it
+        executor = self.executor
+
+        return Simulator(
+            deepcopy(self.detector, memo),
+            deepcopy(self.optics, memo),
+            deepcopy(self.sample, memo),
+            deepcopy(self.source, memo),
+            deepcopy(self.time, memo),
+            deepcopy(self.dt, memo),
+            deepcopy(self.x_lim, memo),
+            deepcopy(self.y_lim, memo),
+            deepcopy(self.num_measurements, memo),
+            deepcopy(self.preprocessors, memo),
+            deepcopy(self.post_processors, memo),
+            executor=executor,
+            rng=deepcopy(self.rng, memo),
+            backup=False,
+        )
 
     def validate_num_measurements(self, value: int, **_) -> int:
         if value < 0:
@@ -163,4 +191,8 @@ class Simulator(Validation):
 
     def reset(self) -> None:
         """Resets the simulator to its original state."""
-        self.__dict__.update(self._initial_state.__dict__)
+        if self.backup:
+            self.__dict__.update(self._initial_state.__dict__)
+            self.backup = True
+        else:
+            raise RuntimeError("The simulator instance cannot be reset.")
