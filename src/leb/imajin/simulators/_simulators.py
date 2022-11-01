@@ -1,3 +1,4 @@
+from concurrent.futures import Executor
 from copy import deepcopy
 from dataclasses import dataclass
 from functools import wraps
@@ -82,6 +83,27 @@ def process(step: Callable[["Simulator"], StepResponse]) -> Callable[["Simulator
 
 @dataclass
 class Simulator(Validation):
+    """A Simulator integrates model components to generate simulated data.
+
+    Parameters
+    ----------
+    detector: leb.imajin.Detector
+    optics: leb.imajin.Optics
+    sample: leb.imajin.Sample
+    source: leb.imajin.Source
+    time: float
+    dt: float
+    x_lim: tuple[int, int]
+    y_lim: tuple[int, int]
+    num_measurements: int
+    preprocessors: leb.simulators.Processor
+    postprocessors: leb.simulators.Processor
+    executor: concurrent.futures.Executor
+        If provided, an executor instance will be passed to the individual model components for
+        parallel computation.
+    rng: numpy.random.Generator
+
+    """
     detector: Detector
     optics: Optics
     sample: Sample
@@ -95,6 +117,8 @@ class Simulator(Validation):
 
     preprocessors: Optional[Sequence[Processor]] = None
     post_processors: Optional[Sequence[Processor]] = None
+
+    executor: Optional[Executor] = None
 
     rng: Optional[random.Generator] = None
 
@@ -117,7 +141,7 @@ class Simulator(Validation):
 
     @process
     def step(self) -> StepResponse:
-        sample_response = self.sample.response(self.time, self.dt, self.source)
+        sample_response = self.sample.response(self.time, self.dt, self.source, self.executor)
         optics_response = self.optics.response(self.x_lim, self.y_lim, sample_response)
         detector_response = self.detector.response(optics_response, rng=self.rng)
 
