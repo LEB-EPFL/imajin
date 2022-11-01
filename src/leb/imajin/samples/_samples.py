@@ -174,7 +174,7 @@ class Fluorophore(Emitter, Validation, Generic[T]):
         return EmitterResponse(self.x, self.y, self.z, photons, self.wavelength)
 
 
-def _parallel_eval(func: Callable[[], EmitterResponse]) -> EmitterResponse:
+def _parallel_response(func: Callable[[], EmitterResponse]) -> EmitterResponse:
     return func()
 
 
@@ -198,7 +198,7 @@ class Emitters(Sample):
     def _response_parallel(
         self, time: float, dt: float, source: Source, executor: Executor
     ) -> SampleResponse:
-        # Builds a sequence of partial functions to work around having to pass args to the workers
-        funcs = [partial(Emitters.response, emitter, time, dt, source) for emitter in self.emitters]
-
-        return list(executor.map(_parallel_eval, funcs))
+        # Build a list of partial functions with zero arguments to workaround having to send args
+        # to the executor
+        funcs = [partial(emitter.response, time, dt, source) for emitter in self.emitters]
+        return list(executor.map(_parallel_response, funcs))

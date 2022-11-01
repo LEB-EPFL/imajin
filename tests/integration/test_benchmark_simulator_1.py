@@ -1,10 +1,11 @@
-"""Benchmark Test 0: Three state fluorophores
+"""Benchmark Test 1: Three state fluorophores
 
-The simulation is not run in parallel.
+The individual steps of the simulation are run in parallel on a concurrent.futures.Executor
+instance.
 
 """
 
-from concurrent.futures import Executor
+from concurrent.futures import Executor, ProcessPoolExecutor
 from dataclasses import dataclass
 from typing import Optional
 
@@ -79,9 +80,10 @@ def new_simulator(pool: Optional[Executor] = None) -> Simulator:
     )
 
 
-def test_three_state_flourophores_simulation_0(benchmark, reset):
-    simulator = new_simulator()
-    measurements = benchmark(Simulator.run, simulator, reset=reset)
+def test_three_state_flourophores_simulation_1(benchmark, reset):
+    with ProcessPoolExecutor() as pool:
+        simulator = new_simulator(pool)
+        measurements = benchmark(Simulator.run, simulator, reset=reset)
 
     assert measurements.shape == (
         Parameters.num_measurements,
