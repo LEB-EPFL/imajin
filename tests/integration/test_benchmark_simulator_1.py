@@ -104,7 +104,8 @@ if __name__ == "__main__":
 
     filename = Path(__file__).stem + "_result.json"
 
-    simulator = new_simulator()
+    with ProcessPoolExecutor() as pool:
+        simulator = new_simulator(pool=pool)
 
-    with VizTracer(max_stack_depth=10, tracer_entries=1000000, output_file=filename) as tracer:
-        simulator.run()
+        with VizTracer(max_stack_depth=10, tracer_entries=1000000, output_file=filename) as tracer:
+            simulator.run()

@@ -60,6 +60,7 @@ allowlist_externals = poetry
 commands =
     poetry install -v
     poetry run python tests/integration/test_benchmark_simulator_0.py
+    poetry run python tests/integration/test_benchmark_simulator_1.py
 
 [testenv:format]
 allowlist_externals = 
