@@ -24,7 +24,7 @@ mypy = "*"
 pylint = "*"
 pytest = "^7.1"
 pytest-benchmark = "*"
-tox = "^3"
+tox = "^4"
 viztracer = "*"
 
 [tool.pytest.ini_options]
